@@ -1,0 +1,61 @@
+# --- Seguridad y Credenciales Críticas ---
+# ¡NUNCA subas estos archivos al repositorio público!
+.env
+.env.local
+.env.*
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem
+*.key
+secrets/
+credentials.json
+
+# --- Evidencia del Hackathon (¡NO IGNORAR!) ---
+# La carpeta bob_sessions DEBE subirse al repositorio para la evaluación.
+# Nos aseguramos de que no sea ignorada por accidente:
+!bob_sessions/
+!bob_sessions/**
+
+# --- Entornos Virtuales de Python ---
+venv/
+.venv/
+env/
+ENV/
+bin/
+lib/
+include/
+share/
+pyvenv.cfg
+
+# --- Caché de Python y Compilación ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# --- Configuración de Flask / Servidores ---
+instance/
+.webassets-cache
+*.log
+
+# --- Archivos del Sistema Operativo ---
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# --- Configuraciones de IDEs (Opcional, mantener limpio el repositorio) ---
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
