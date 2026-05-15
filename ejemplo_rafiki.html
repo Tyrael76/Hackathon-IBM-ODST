@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejemplo Rafiki - Extractor de Repositorios GitHub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .results.active {
+            display: block;
+        }
+
+        .stats {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .stats h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .file-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: border-color 0.3s, transform 0.2s;
+        }
+
+        .file-card:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .file-path {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .file-info {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .error {
+            display: none;
+            background: #fee;
+            border: 2px solid #fcc;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .error.active {
+            display: block;
+        }
+
+        .success {
+            display: none;
+            background: #efe;
+            border: 2px solid #cfc;
+            color: #3c3;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .success.active {
+            display: block;
+        }
+
+        .pipeline {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+
+        .pipeline h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .pipeline-step {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .step-number {
+            width: 30px;
+            height: 30px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 Ejemplo Rafiki - Frontend</h1>
+            <p>Extractor de Repositorios GitHub - Pipeline Completo</p>
+        </div>
+
+        <div class="content">
+            <form id="extractForm">
+                <div class="form-group">
+                    <label for="githubToken">🔑 Token de GitHub:</label>
+                    <input 
+                        type="password" 
+                        id="githubToken" 
+                        placeholder="ghp_xxxxxxxxxxxxx"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="repository">📦 Repositorio (usuario/repo):</label>
+                    <input 
+                        type="text" 
+                        id="repository" 
+                        placeholder="Ok-Andre/Pagina-web"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="filterType">🔍 Tipo de Filtrado:</label>
+                    <select id="filterType">
+                        <option value="intelligent">Inteligente (Recomendado)</option>
+                        <option value="custom">Personalizado</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn" id="submitBtn">
+                    Extraer Repositorio
+                </button>
+            </form>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Extrayendo archivos del repositorio...</p>
+                <p style="color: #666; margin-top: 10px;">Esto puede tomar unos segundos</p>
+            </div>
+
+            <div class="error" id="error"></div>
+            <div class="success" id="success"></div>
+
+            <div class="results" id="results">
+                <div class="stats">
+                    <h3>📊 Estadísticas de Extracción</h3>
+                    <div class="stat-item">
+                        <span>Repositorio:</span>
+                        <strong id="statRepo">-</strong>
+                    </div>
+                    <div class="stat-item">
+                        <span>Total de Archivos:</span>
+                        <strong id="statCount">-</strong>
+                    </div>
+                    <div class="stat-item">
+                        <span>Estado:</span>
+                        <strong id="statStatus">-</strong>
+                    </div>
+                </div>
+
+                <h3 style="margin-bottom: 15px;">📄 Archivos Extraídos</h3>
+                <div id="filesList"></div>
+            </div>
+
+            <div class="pipeline">
+                <h3>🔄 Pipeline del Proyecto</h3>
+                <div class="pipeline-step">
+                    <div class="step-number">1</div>
+                    <div>
+                        <strong>Usuario (Rafiki)</strong><br>
+                        <small>Ingresa repositorio y token</small>
+                    </div>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-number">2</div>
+                    <div>
+                        <strong>Andre - Extracción</strong><br>
+                        <small>Descarga y filtra archivos de GitHub</small>
+                    </div>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-number">3</div>
+                    <div>
+                        <strong>Antonio - Compresión AST</strong><br>
+                        <small>Comprime código con AST/Regex</small>
+                    </div>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-number">4</div>
+                    <div>
+                        <strong>Uriel - Análisis IBM Bob</strong><br>
+                        <small>Analiza código con IA</small>
+                    </div>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-number">5</div>
+                    <div>
+                        <strong>Gio - Formato Markdown</strong><br>
+                        <small>Formatea resultados</small>
+                    </div>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-number">6</div>
+                    <div>
+                        <strong>Rafiki - Visualización</strong><br>
+                        <small>Muestra resultados al usuario</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000/extract';
+
+        const form = document.getElementById('extractForm');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const errorDiv = document.getElementById('error');
+        const successDiv = document.getElementById('success');
+        const submitBtn = document.getElementById('submitBtn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Obtener valores del formulario
+            const token = document.getElementById('githubToken').value;
+            const repo = document.getElementById('repository').value;
+            const filterType = document.getElementById('filterType').value;
+
+            // Limpiar mensajes anteriores
+            errorDiv.classList.remove('active');
+            successDiv.classList.remove('active');
+            results.classList.remove('active');
+
+            // Mostrar loading
+            loading.classList.add('active');
+            submitBtn.disabled = true;
+
+            try {
+                // Hacer petición a la API de Andre
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        github_token: token,
+                        repository: repo,
+                        extensions: filterType === 'intelligent' ? null : ['.py', '.js', '.html']
+                    })
+                });
+
+                const data = await response.json();
+
+                // Verificar si la respuesta fue exitosa
+                if (!response.ok) {
+                    throw new Error(data.detail || data.message || 'Error en la petición');
+                }
+
+                if (data.status === 'success') {
+                    // Mostrar éxito
+                    successDiv.textContent = `✅ ${data.file_count} archivos extraídos exitosamente`;
+                    successDiv.classList.add('active');
+
+                    // Mostrar estadísticas
+                    document.getElementById('statRepo').textContent = data.repo;
+                    document.getElementById('statCount').textContent = data.file_count;
+                    document.getElementById('statStatus').textContent = '✅ Exitoso';
+
+                    // Mostrar archivos
+                    const filesList = document.getElementById('filesList');
+                    filesList.innerHTML = '';
+
+                    data.files.forEach(file => {
+                        const fileCard = document.createElement('div');
+                        fileCard.className = 'file-card';
+                        fileCard.innerHTML = `
+                            <div class="file-path">${file.path}</div>
+                            <div class="file-info">
+                                <span>📦 ${file.size} bytes</span>
+                                <span>📚 ${file.dependencies.length} dependencias</span>
+                            </div>
+                        `;
+                        filesList.appendChild(fileCard);
+                    });
+
+                    results.classList.add('active');
+                } else {
+                    // Mostrar error
+                    errorDiv.textContent = `❌ Error: ${data.message}`;
+                    errorDiv.classList.add('active');
+                }
+
+            } catch (error) {
+                console.error('Error completo:', error);
+                let errorMessage = error.message || 'Error desconocido';
+                
+                if (errorMessage.includes('Failed to fetch')) {
+                    errorMessage = `No se pudo conectar con el servidor. Verifica que esté corriendo en ${API_URL}`;
+                }
+                
+                errorDiv.textContent = `❌ Error: ${errorMessage}`;
+                errorDiv.classList.add('active');
+            } finally {
+                loading.classList.remove('active');
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
