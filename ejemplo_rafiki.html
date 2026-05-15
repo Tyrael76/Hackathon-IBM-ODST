@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ejemplo Rafiki - Extractor de Repositorios GitHub</title>
+    <title>Rafiki Example - GitHub Repository Extractor</title>
     <style>
         * {
             margin: 0;
@@ -252,49 +252,49 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎨 Ejemplo Rafiki - Frontend</h1>
-            <p>Extractor de Repositorios GitHub - Pipeline Completo</p>
+            <h1>🎨 Rafiki Example - Frontend</h1>
+            <p>GitHub Repository Extractor - Complete Pipeline</p>
         </div>
 
         <div class="content">
             <form id="extractForm">
                 <div class="form-group">
-                    <label for="githubToken">🔑 Token de GitHub:</label>
-                    <input 
-                        type="password" 
-                        id="githubToken" 
+                    <label for="githubToken">🔑 GitHub Token:</label>
+                    <input
+                        type="password"
+                        id="githubToken"
                         placeholder="ghp_xxxxxxxxxxxxx"
                         required
                     >
                 </div>
 
                 <div class="form-group">
-                    <label for="repository">📦 Repositorio (usuario/repo):</label>
-                    <input 
-                        type="text" 
-                        id="repository" 
+                    <label for="repository">📦 Repository (user/repo):</label>
+                    <input
+                        type="text"
+                        id="repository"
                         placeholder="Ok-Andre/Pagina-web"
                         required
                     >
                 </div>
 
                 <div class="form-group">
-                    <label for="filterType">🔍 Tipo de Filtrado:</label>
+                    <label for="filterType">🔍 Filter Type:</label>
                     <select id="filterType">
-                        <option value="intelligent">Inteligente (Recomendado)</option>
-                        <option value="custom">Personalizado</option>
+                        <option value="intelligent">Intelligent (Recommended)</option>
+                        <option value="custom">Custom</option>
                     </select>
                 </div>
 
                 <button type="submit" class="btn" id="submitBtn">
-                    Extraer Repositorio
+                    Extract Repository
                 </button>
             </form>
 
             <div class="loading" id="loading">
                 <div class="spinner"></div>
-                <p>Extrayendo archivos del repositorio...</p>
-                <p style="color: #666; margin-top: 10px;">Esto puede tomar unos segundos</p>
+                <p>Extracting files from repository...</p>
+                <p style="color: #666; margin-top: 10px;">This may take a few seconds</p>
             </div>
 
             <div class="error" id="error"></div>
@@ -302,67 +302,67 @@
 
             <div class="results" id="results">
                 <div class="stats">
-                    <h3>📊 Estadísticas de Extracción</h3>
+                    <h3>📊 Extraction Statistics</h3>
                     <div class="stat-item">
-                        <span>Repositorio:</span>
+                        <span>Repository:</span>
                         <strong id="statRepo">-</strong>
                     </div>
                     <div class="stat-item">
-                        <span>Total de Archivos:</span>
+                        <span>Total Files:</span>
                         <strong id="statCount">-</strong>
                     </div>
                     <div class="stat-item">
-                        <span>Estado:</span>
+                        <span>Status:</span>
                         <strong id="statStatus">-</strong>
                     </div>
                 </div>
 
-                <h3 style="margin-bottom: 15px;">📄 Archivos Extraídos</h3>
+                <h3 style="margin-bottom: 15px;">📄 Extracted Files</h3>
                 <div id="filesList"></div>
             </div>
 
             <div class="pipeline">
-                <h3>🔄 Pipeline del Proyecto</h3>
+                <h3>🔄 Project Pipeline</h3>
                 <div class="pipeline-step">
                     <div class="step-number">1</div>
                     <div>
-                        <strong>Usuario (Rafiki)</strong><br>
-                        <small>Ingresa repositorio y token</small>
+                        <strong>User (Rafiki)</strong><br>
+                        <small>Enters repository and token</small>
                     </div>
                 </div>
                 <div class="pipeline-step">
                     <div class="step-number">2</div>
                     <div>
-                        <strong>Andre - Extracción</strong><br>
-                        <small>Descarga y filtra archivos de GitHub</small>
+                        <strong>Andre - Extraction</strong><br>
+                        <small>Downloads and filters files from GitHub</small>
                     </div>
                 </div>
                 <div class="pipeline-step">
                     <div class="step-number">3</div>
                     <div>
-                        <strong>Antonio - Compresión AST</strong><br>
-                        <small>Comprime código con AST/Regex</small>
+                        <strong>Antonio - AST Compression</strong><br>
+                        <small>Compresses code with AST/Regex</small>
                     </div>
                 </div>
                 <div class="pipeline-step">
                     <div class="step-number">4</div>
                     <div>
-                        <strong>Uriel - Análisis IBM Bob</strong><br>
-                        <small>Analiza código con IA</small>
+                        <strong>Uriel - IBM Bob Analysis</strong><br>
+                        <small>Analyzes code with AI</small>
                     </div>
                 </div>
                 <div class="pipeline-step">
                     <div class="step-number">5</div>
                     <div>
-                        <strong>Gio - Formato Markdown</strong><br>
-                        <small>Formatea resultados</small>
+                        <strong>Gio - Markdown Format</strong><br>
+                        <small>Formats results</small>
                     </div>
                 </div>
                 <div class="pipeline-step">
                     <div class="step-number">6</div>
                     <div>
-                        <strong>Rafiki - Visualización</strong><br>
-                        <small>Muestra resultados al usuario</small>
+                        <strong>Rafiki - Visualization</strong><br>
+                        <small>Shows results to user</small>
                     </div>
                 </div>
             </div>
@@ -382,22 +382,22 @@
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // Obtener valores del formulario
+            // Get form values
             const token = document.getElementById('githubToken').value;
             const repo = document.getElementById('repository').value;
             const filterType = document.getElementById('filterType').value;
 
-            // Limpiar mensajes anteriores
+            // Clear previous messages
             errorDiv.classList.remove('active');
             successDiv.classList.remove('active');
             results.classList.remove('active');
 
-            // Mostrar loading
+            // Show loading
             loading.classList.add('active');
             submitBtn.disabled = true;
 
             try {
-                // Hacer petición a la API de Andre
+                // Make request to Andre's API
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: {
@@ -412,22 +412,22 @@
 
                 const data = await response.json();
 
-                // Verificar si la respuesta fue exitosa
+                // Check if response was successful
                 if (!response.ok) {
-                    throw new Error(data.detail || data.message || 'Error en la petición');
+                    throw new Error(data.detail || data.message || 'Request error');
                 }
 
                 if (data.status === 'success') {
-                    // Mostrar éxito
-                    successDiv.textContent = `✅ ${data.file_count} archivos extraídos exitosamente`;
+                    // Show success
+                    successDiv.textContent = `✅ ${data.file_count} files extracted successfully`;
                     successDiv.classList.add('active');
 
-                    // Mostrar estadísticas
+                    // Show statistics
                     document.getElementById('statRepo').textContent = data.repo;
                     document.getElementById('statCount').textContent = data.file_count;
-                    document.getElementById('statStatus').textContent = '✅ Exitoso';
+                    document.getElementById('statStatus').textContent = '✅ Successful';
 
-                    // Mostrar archivos
+                    // Show files
                     const filesList = document.getElementById('filesList');
                     filesList.innerHTML = '';
 
@@ -438,7 +438,7 @@
                             <div class="file-path">${file.path}</div>
                             <div class="file-info">
                                 <span>📦 ${file.size} bytes</span>
-                                <span>📚 ${file.dependencies.length} dependencias</span>
+                                <span>📚 ${file.dependencies.length} dependencies</span>
                             </div>
                         `;
                         filesList.appendChild(fileCard);
@@ -446,17 +446,17 @@
 
                     results.classList.add('active');
                 } else {
-                    // Mostrar error
+                    // Show error
                     errorDiv.textContent = `❌ Error: ${data.message}`;
                     errorDiv.classList.add('active');
                 }
 
             } catch (error) {
-                console.error('Error completo:', error);
-                let errorMessage = error.message || 'Error desconocido';
+                console.error('Complete error:', error);
+                let errorMessage = error.message || 'Unknown error';
                 
                 if (errorMessage.includes('Failed to fetch')) {
-                    errorMessage = `No se pudo conectar con el servidor. Verifica que esté corriendo en ${API_URL}`;
+                    errorMessage = `Could not connect to server. Verify it's running at ${API_URL}`;
                 }
                 
                 errorDiv.textContent = `❌ Error: ${errorMessage}`;

@@ -2,20 +2,20 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
-import gitAPI  # Importamos tu script anterior
+import gitAPI
 
-app = FastAPI(title="Extractor API para Bob")
+app = FastAPI(title="GitHub Extractor API for Bob")
 
-# CONFIGURACIÓN DE CORS: Vital para que el Front-end de Rafiki no sea bloqueado
+# CORS CONFIGURATION: Essential for Rafiki's frontend to not be blocked
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # En producción se cambia por la URL del Front
+    allow_origins=["*"],  # Change to specific URL in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Definimos qué datos esperamos recibir del Front
+# Define what data we expect to receive from frontend
 class RepoRequest(BaseModel):
     github_token: str
     repository: str
@@ -23,15 +23,15 @@ class RepoRequest(BaseModel):
 
 @app.get("/")
 def home():
-    return {"message": "Servidor de Extracción Activo"}
+    return {"message": "Extraction Server Active"}
 
 @app.post("/extract")
 async def extract_repository(request: RepoRequest):
     """
-    Recibe el token, el repo y las extensiones desde el Front.
+    Receives token, repo and extensions from frontend.
     """
     try:
-        # Llamamos a tu lógica (asegúrate de que get_repository_data acepte estos parámetros)
+        # Call extraction logic
         data = gitAPI.get_repository_data(
             repo_full_name=request.repository,
             token=request.github_token,
@@ -39,7 +39,7 @@ async def extract_repository(request: RepoRequest):
         )
         
         if not data:
-            raise HTTPException(status_code=404, detail="No se encontraron archivos con esas extensiones.")
+            raise HTTPException(status_code=404, detail="No files found with those extensions.")
             
         return {
             "status": "success",

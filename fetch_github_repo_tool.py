@@ -1,11 +1,11 @@
 """
-Custom Tool para Agentes: Ingesta Dinámica de Repositorios GitHub
-Herramienta genérica compatible con LangChain, CrewAI y otros frameworks de agentes.
+Custom Tool for Agents: Dynamic GitHub Repository Ingestion
+Generic tool compatible with LangChain, CrewAI and other agent frameworks.
 
-INSTRUCCIONES IMPLEMENTADAS:
-1. Ingesta Dinámica y "Tools" de Agentes - Provee el código fuente al sistema de manera ágil
-2. La Herramienta LangChain/CrewAI - Envuelve la lógica en una función invocable
-3. Filtrado Inteligente sin Tokens - Usa mimetypes para descartar binarios, imágenes y compilados
+IMPLEMENTED INSTRUCTIONS:
+1. Dynamic Ingestion and Agent "Tools" - Provides source code to the system in an agile way
+2. LangChain/CrewAI Tool - Wraps logic in an invocable function
+3. Intelligent Filtering without Tokens - Uses mimetypes to discard binaries, images and compiled files
 """
 
 import gitAPI
@@ -14,48 +14,48 @@ from typing import Optional, List, Dict, Any
 
 class GitHubRepoTool:
     """
-    Custom Tool para extraer código fuente de repositorios GitHub.
+    Custom Tool to extract source code from GitHub repositories.
     
-    Esta herramienta permite a los agentes descargar y analizar repositorios
-    de GitHub de manera dinámica, aplicando filtrado inteligente para excluir
-    binarios, imágenes y compilados.
+    This tool allows agents to download and analyze GitHub repositories
+    dynamically, applying intelligent filtering to exclude binaries,
+    images and compiled files.
     
-    Características:
-    - Filtrado inteligente por MIME type (sin necesidad de tokens)
-    - Caché local para optimizar llamadas
-    - Extracción de dependencias
-    - Exclusión automática de directorios comunes (node_modules, etc.)
+    Features:
+    - Intelligent filtering by MIME type (no tokens needed)
+    - Local cache to optimize calls
+    - Dependency extraction
+    - Automatic exclusion of common directories (node_modules, etc.)
     
-    Uso con LangChain:
+    Usage with LangChain:
         from langchain.tools import StructuredTool
         
         tool = StructuredTool.from_function(
             func=fetch_github_repo_tool,
             name="fetch_github_repo",
-            description="Extrae código fuente de un repositorio de GitHub"
+            description="Extracts source code from a GitHub repository"
         )
     
-    Uso con CrewAI:
+    Usage with CrewAI:
         from crewai_tools import tool
         
         @tool("fetch_github_repo")
         def github_tool(repository: str, github_token: str, extensions: list = None):
             return fetch_github_repo_tool(repository, github_token, extensions)
     
-    Uso directo:
+    Direct usage:
         result = fetch_github_repo_tool(
-            repository="usuario/repo",
+            repository="user/repo",
             github_token="ghp_xxxxx",
-            extensions=[".py", ".js"]  # Opcional
+            extensions=[".py", ".js"]  # Optional
         )
     """
     
     name: str = "fetch_github_repo"
     description: str = """
-    Útil para extraer el código fuente de un repositorio de GitHub.
-    Proporciona el nombre del repositorio (formato: 'usuario/repo') y el token de GitHub.
-    Opcionalmente, especifica extensiones de archivo a filtrar.
-    Retorna una lista de archivos con su contenido, dependencias y metadatos.
+    Useful for extracting source code from a GitHub repository.
+    Provide the repository name (format: 'user/repo') and GitHub token.
+    Optionally, specify file extensions to filter.
+    Returns a list of files with their content, dependencies and metadata.
     """
     
     @staticmethod
@@ -65,16 +65,16 @@ class GitHubRepoTool:
         extensions: Optional[List[str]] = None
     ) -> Dict[str, Any]:
         """
-        Ejecuta la extracción del repositorio.
+        Executes repository extraction.
         
         Args:
-            repository: Nombre completo del repositorio (usuario/repo)
-            github_token: Token de autenticación de GitHub
-            extensions: Lista opcional de extensiones a filtrar (ej. [".py", ".js"])
-                       Si es None o vacía, usa filtrado inteligente por MIME type
+            repository: Full repository name (user/repo)
+            github_token: GitHub authentication token
+            extensions: Optional list of extensions to filter (e.g. [".py", ".js"])
+                       If None or empty, uses intelligent filtering by MIME type
             
         Returns:
-            dict: Diccionario con status, información del repo y archivos extraídos
+            dict: Dictionary with status, repo info and extracted files
             
         Example:
             >>> tool = GitHubRepoTool()
@@ -83,14 +83,14 @@ class GitHubRepoTool:
             ...     github_token="ghp_xxxxx",
             ...     extensions=[".html", ".css", ".js"]
             ... )
-            >>> print(f"Archivos extraídos: {result['file_count']}")
+            >>> print(f"Files extracted: {result['file_count']}")
         """
         try:
-            # Si no se especifican extensiones, usar filtrado inteligente (lista vacía)
+            # If no extensions specified, use intelligent filtering (empty list)
             if extensions is None:
                 extensions = []
             
-            # Llamar a la función de extracción
+            # Call extraction function
             files = gitAPI.get_repository_data(
                 repo_full_name=repository,
                 token=github_token,
@@ -216,8 +216,8 @@ def create_crewai_tool():
         return github_repo_tool
     except ImportError:
         raise ImportError(
-            "CrewAI no está instalado. "
-            "Instala con: pip install crewai crewai-tools"
+            "CrewAI is not installed. "
+            "Install with: pip install crewai crewai-tools"
         )
 
 

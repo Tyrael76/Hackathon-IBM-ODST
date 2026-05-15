@@ -1,95 +1,95 @@
 """
-Ejemplo para Antonio - Paso 3: Compresión con AST
-Demuestra cómo usar fetch_github_repo_tool para recibir archivos de Andre
-y procesarlos con AST antes de pasarlos a Uriel.
+Example for Antonio - Step 3: AST Compression
+Demonstrates how to use fetch_github_repo_tool to receive files from Andre
+and process them with AST before passing to Uriel.
 """
 
 from fetch_github_repo_tool import fetch_github_repo_tool
 import json
 import ast
 
-def comprimir_con_ast(codigo_fuente, path):
+def compress_with_ast(source_code, path):
     """
-    Función de ejemplo para comprimir código usando AST.
-    Antonio debe reemplazar esto con su lógica real de compresión.
+    Example function to compress code using AST.
+    Antonio should replace this with his actual compression logic.
     """
     try:
-        # Intentar parsear como Python
+        # Try to parse as Python
         if path.endswith('.py'):
-            tree = ast.parse(codigo_fuente)
+            tree = ast.parse(source_code)
             
-            # Ejemplo: Extraer información del AST
-            funciones = [node.name for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)]
-            clases = [node.name for node in ast.walk(tree) if isinstance(node, ast.ClassDef)]
+            # Example: Extract information from AST
+            functions = [node.name for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)]
+            classes = [node.name for node in ast.walk(tree) if isinstance(node, ast.ClassDef)]
             
             return {
                 'compressed': True,
                 'type': 'python',
-                'functions': funciones,
-                'classes': clases,
-                'ast_dump': ast.dump(tree)[:200] + '...',  # Primeros 200 chars
-                'size_original': len(codigo_fuente)
+                'functions': functions,
+                'classes': classes,
+                'ast_dump': ast.dump(tree)[:200] + '...',  # First 200 chars
+                'size_original': len(source_code)
             }
         else:
-            # Para otros archivos, usar compresión simple
+            # For other files, use simple compression
             return {
                 'compressed': True,
                 'type': 'text',
-                'size_original': len(codigo_fuente),
-                'preview': codigo_fuente[:100] + '...'
+                'size_original': len(source_code),
+                'preview': source_code[:100] + '...'
             }
     except Exception as e:
         return {
             'compressed': False,
             'error': str(e),
-            'size_original': len(codigo_fuente)
+            'size_original': len(source_code)
         }
 
 
 def main():
     print("=" * 80)
-    print("🔧 EJEMPLO ANTONIO - PASO 3: COMPRESIÓN CON AST")
+    print("🔧 ANTONIO EXAMPLE - STEP 3: AST COMPRESSION")
     print("=" * 80)
     print()
     
-    # Configuración
-    GITHUB_TOKEN = "ghp_xxxxxxxxxxxxx"  # Reemplazar con token real
-    REPOSITORY = "usuario/repositorio"   # Reemplazar con repo real
+    # Configuration
+    GITHUB_TOKEN = "ghp_xxxxxxxxxxxxx"  # Replace with real token
+    REPOSITORY = "user/repository"       # Replace with real repo
     
-    print("📥 Paso 1: Recibir archivos de Andre (Paso 2)")
+    print("📥 Step 1: Receive files from Andre (Step 2)")
     print(f"   Repository: {REPOSITORY}")
     print(f"   Token: {GITHUB_TOKEN[:10]}...")
     print()
     
-    # Llamar a la herramienta de Andre
+    # Call Andre's tool
     result = fetch_github_repo_tool(
         repository=REPOSITORY,
         github_token=GITHUB_TOKEN,
-        extensions=None  # Filtrado inteligente automático
+        extensions=None  # Automatic intelligent filtering
     )
     
-    # Verificar resultado
+    # Check result
     if result['status'] != 'success':
         print(f"❌ Error: {result['message']}")
         return
     
-    print(f"✅ {result['file_count']} archivos recibidos de Andre")
+    print(f"✅ {result['file_count']} files received from Andre")
     print()
     
-    # Paso 2: Comprimir con AST
-    print("🔄 Paso 2: Comprimiendo archivos con AST...")
+    # Step 2: Compress with AST
+    print("🔄 Step 2: Compressing files with AST...")
     print()
     
-    archivos_comprimidos = []
+    compressed_files = []
     
     for i, file in enumerate(result['files'], 1):
-        print(f"   [{i}/{result['file_count']}] Procesando: {file['path']}")
+        print(f"   [{i}/{result['file_count']}] Processing: {file['path']}")
         
-        # Comprimir con AST
-        compressed = comprimir_con_ast(file['content'], file['path'])
+        # Compress with AST
+        compressed = compress_with_ast(file['content'], file['path'])
         
-        # Guardar resultado
-        archivos_comprimidos.append({
+        # Save result
+        compressed_files.append({
             'path': file['path'],
             'size_original': file['size'],
             'dependencies': file['dependencies'],
@@ -97,52 +97,52 @@ def main():
         })
     
     print()
-    print(f"✅ {len(archivos_comprimidos)} archivos comprimidos")
+    print(f"✅ {len(compressed_files)} files compressed")
     print()
     
-    # Paso 3: Guardar para Uriel (Paso 4)
-    output_file = 'archivos_para_uriel.json'
+    # Step 3: Save for Uriel (Step 4)
+    output_file = 'files_for_uriel.json'
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump({
             'repository': REPOSITORY,
-            'total_files': len(archivos_comprimidos),
-            'files': archivos_comprimidos
+            'total_files': len(compressed_files),
+            'files': compressed_files
         }, f, indent=2, ensure_ascii=False)
     
-    print(f"📤 Paso 3: Archivo guardado para Uriel")
-    print(f"   Archivo: {output_file}")
+    print(f"📤 Step 3: File saved for Uriel")
+    print(f"   File: {output_file}")
     print()
     
-    # Mostrar estadísticas
-    print("📊 Estadísticas:")
-    total_original = sum(f['size_original'] for f in archivos_comprimidos)
-    archivos_python = sum(1 for f in archivos_comprimidos if f['path'].endswith('.py'))
+    # Show statistics
+    print("📊 Statistics:")
+    total_original = sum(f['size_original'] for f in compressed_files)
+    python_files = sum(1 for f in compressed_files if f['path'].endswith('.py'))
     
-    print(f"   - Total archivos: {len(archivos_comprimidos)}")
-    print(f"   - Archivos Python: {archivos_python}")
-    print(f"   - Tamaño total: {total_original / 1024:.2f} KB")
+    print(f"   - Total files: {len(compressed_files)}")
+    print(f"   - Python files: {python_files}")
+    print(f"   - Total size: {total_original / 1024:.2f} KB")
     print()
     
-    # Mostrar ejemplo de archivo comprimido
-    if archivos_comprimidos:
-        print("📄 Ejemplo de archivo comprimido:")
-        ejemplo = archivos_comprimidos[0]
-        print(f"   Path: {ejemplo['path']}")
-        print(f"   Tamaño original: {ejemplo['size_original']} bytes")
-        print(f"   Dependencias: {ejemplo['dependencies']}")
-        print(f"   Comprimido: {ejemplo['compressed_data']['compressed']}")
+    # Show example of compressed file
+    if compressed_files:
+        print("📄 Example of compressed file:")
+        example = compressed_files[0]
+        print(f"   Path: {example['path']}")
+        print(f"   Original size: {example['size_original']} bytes")
+        print(f"   Dependencies: {example['dependencies']}")
+        print(f"   Compressed: {example['compressed_data']['compressed']}")
         print()
     
     print("=" * 80)
-    print("✅ PROCESO COMPLETO")
+    print("✅ PROCESS COMPLETE")
     print("=" * 80)
     print()
-    print("📋 Próximos pasos:")
-    print("   1. ✅ Andre extrajo el repositorio (Paso 2)")
-    print("   2. ✅ Antonio comprimió con AST (Paso 3)")
-    print("   3. ⏭️  Uriel analizará con IBM Bob (Paso 4)")
-    print("   4. ⏭️  Gio formateará a Markdown (Paso 5)")
-    print("   5. ⏭️  Rafiki mostrará al usuario (Frontend)")
+    print("📋 Next steps:")
+    print("   1. ✅ Andre extracted repository (Step 2)")
+    print("   2. ✅ Antonio compressed with AST (Step 3)")
+    print("   3. ⏭️  Uriel will analyze with IBM Bob (Step 4)")
+    print("   4. ⏭️  Gio will format to Markdown (Step 5)")
+    print("   5. ⏭️  Rafiki will show to user (Frontend)")
     print()
 
 

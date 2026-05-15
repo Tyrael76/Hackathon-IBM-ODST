@@ -4,31 +4,31 @@ import re
 import mimetypes
 from github import Github
 
-# Configuración de Filtros Estáticos
+# Static Filter Configuration
 MAX_FILE_SIZE = 150 * 1024  # 150KB
 BLACKLIST_DIRS = {'node_modules', '__pycache__', '.git', '.venv', 'venv', 'env', '.idea', '.vscode'}
 
-# Inicializar mimetypes
+# Initialize mimetypes
 mimetypes.init()
 
 def is_text_file(path):
     """
-    Filtrado Inteligente sin Tokens (Instrucción 3):
-    Usa mimetypes para detectar si un archivo es texto plano.
-    Lee los primeros bytes para descartar binarios, imágenes y compilados.
+    Intelligent Filtering without Tokens (Instruction 3):
+    Uses mimetypes to detect if a file is plain text.
+    Reads first bytes to discard binaries, images and compiled files.
     """
-    # Obtener el tipo MIME basado en la extensión
+    # Get MIME type based on extension
     mime_type, _ = mimetypes.guess_type(path)
     
-    # Si no se puede determinar, asumir que es texto
+    # If cannot determine, assume it's text
     if mime_type is None:
         return True
     
-    # Permitir tipos de texto explícitos
+    # Allow explicit text types
     if mime_type.startswith('text/'):
         return True
     
-    # Permitir tipos específicos de código/configuración
+    # Allow specific code/configuration types
     allowed_types = {
         'application/json',
         'application/xml',
@@ -43,7 +43,7 @@ def is_text_file(path):
     if mime_type in allowed_types:
         return True
     
-    # Rechazar binarios, imágenes, compilados
+    # Reject binaries, images, compiled files
     binary_types = {
         'image/', 'video/', 'audio/',
         'application/octet-stream',
@@ -63,39 +63,39 @@ def is_text_file(path):
 
 def is_valid_file(path, allowed_exts):
     """
-    Verifica si el archivo es válido según ruta y extensión.
-    Si allowed_exts está vacío, usa filtrado inteligente por MIME type.
+    Checks if file is valid based on path and extension.
+    If allowed_exts is empty, uses intelligent filtering by MIME type.
     """
     parts = path.split('/')
     if any(part in BLACKLIST_DIRS for part in parts):
         return False
     
-    # Si se especificaron extensiones, usar filtrado tradicional
+    # If extensions specified, use traditional filtering
     if allowed_exts:
         return any(path.endswith(ext) for ext in allowed_exts)
     
-    # Si no hay extensiones especificadas, usar filtrado inteligente
+    # If no extensions specified, use intelligent filtering
     return is_text_file(path)
 
 def extract_dependencies(content):
-    """Detecta imports básicos para ayudar al mapa de dependencias."""
+    """Detects basic imports to help with dependency mapping."""
     pattern = r"^(?:from|import)\s+([\w\.]+)"
     return list(set(re.findall(pattern, content, re.MULTILINE)))
 
 def get_repository_data(repo_full_name, token, allowed_exts):
     """
-    Motor principal de extracción. 
-    Recibe los parámetros dinámicos desde el endpoint de FastAPI.
+    Main extraction engine.
+    Receives dynamic parameters from FastAPI endpoint.
     """
     g = Github(token)
     cache_name = f"cache_{repo_full_name.replace('/', '_')}.json"
     
     if os.path.exists(cache_name):
-        print(f"--- 💾 Cargando {repo_full_name} desde caché local ---")
+        print(f"--- 💾 Loading {repo_full_name} from local cache ---")
         with open(cache_name, 'r', encoding='utf-8') as f:
             return json.load(f)
 
-    print(f"--- ☁️ Descargando {repo_full_name} desde GitHub ---")
+    print(f"--- ☁️ Downloading {repo_full_name} from GitHub ---")
     try:
         repo = g.get_repo(repo_full_name)
         all_files = []
@@ -105,7 +105,7 @@ def get_repository_data(repo_full_name, token, allowed_exts):
             file_item = contents.pop(0)
             
             if file_item.type == "dir":
-                # Si la carpeta está en blacklist, no entramos
+                # If folder is in blacklist, skip it
                 if file_item.name in BLACKLIST_DIRS:
                     continue
                 contents.extend(repo.get_contents(file_item.path))
@@ -120,16 +120,16 @@ def get_repository_data(repo_full_name, token, allowed_exts):
                         "content": raw_content,
                         "size": file_item.size
                     })
-                    print(f"✅ Procesado: {file_item.path}")
+                    print(f"✅ Processed: {file_item.path}")
                 except Exception as e:
-                    print(f"⚠️ Error en {file_item.path}: {e}")
+                    print(f"⚠️ Error in {file_item.path}: {e}")
 
-        # Guardar caché y entrega
+        # Save cache and deliver
         with open(cache_name, 'w', encoding='utf-8') as f:
             json.dump(all_files, f, indent=4, ensure_ascii=False)
         
         return all_files
 
     except Exception as e:
-        print(f"❌ ERROR CRÍTICO EN CORE: {e}")
-        raise e # Re-lanzamos para que FastAPI capture el error
+        print(f"❌ CRITICAL CORE ERROR: {e}")
+        raise e  # Re-raise so FastAPI can capture the error
