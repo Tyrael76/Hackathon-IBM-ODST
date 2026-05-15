@@ -1,0 +1,255 @@
+:root {
+    --bg-color: #0d1117;
+    --text-color: #c9d1d9;
+    --ibm-blue: #0f62fe;
+    --btn-bg: #1b5e20;
+    --btn-hover: #2e7d32;
+    --border-color: #30363d;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+.container {
+    max-width: 1050px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+h1 {
+    font-size: 3rem;
+    margin: 0 0 10px 0;
+    color: #ffffff;
+}
+
+.badge {
+    background-color: var(--ibm-blue);
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.top-section {
+    display: flex;
+    justify-content: space-between;
+    gap: 3rem;
+    margin-bottom: 4rem;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    flex: 2;
+}
+
+.branch-group {
+    flex: 1;
+}
+
+label, h2, h3 {
+    color: #ffffff;
+    margin-bottom: 8px;
+}
+
+input[type="text"],input[type="password"],select {
+    background-color: transparent;
+    border: 2px solid var(--text-color);
+    color: white;
+    padding: 12px 15px;
+    border-radius: 20px;
+    font-size: 1rem;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+    height: 48px;
+}
+
+select {
+    background-color: #1b5e20;
+    border: 2px solid #2e7d32;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+small {
+    font-size: 0.75rem;
+    color: #8b949e;
+    margin-top: 5px;
+}
+
+.options-section h2 {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+}
+
+.block {
+    margin-bottom: 15px;
+}
+
+.block h3 {
+    font-size: 1rem;
+    margin-bottom: 10px;
+    font-weight: normal;
+}
+
+.btn-row {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+/* --- ESTILOS DE CHECKBOXES COMPACTOS --- */
+.toggle-btn {
+    display: inline-block;
+}
+
+.toggle-btn input[type="checkbox"] {
+    display: none;
+}
+
+.toggle-btn .btn-content {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #1b5e20;
+    border: 2px solid #2e7d32;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+    white-space: nowrap;
+}
+
+.toggle-btn .btn-content:hover {
+    background-color: #245e31;
+}
+
+/* El recuadro del checkbox (vacío por defecto) */
+.check-box {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #ffffff;
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+
+/* Estado ACTIVADO (Seleccionado) */
+.toggle-btn input[type="checkbox"]:checked + .btn-content {
+    background-color: #2e7d32;
+    border-color: #4caf50;
+}
+
+/* La palomita que aparece al seleccionar */
+.toggle-btn input[type="checkbox"]:checked + .btn-content .check-box {
+    background-color: #ffffff;
+    border-color: #ffffff;
+}
+
+.toggle-btn input[type="checkbox"]:checked + .btn-content .check-box::after {
+    content: '✔';
+    color: #2e7d32;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* Textos internos */
+.toggle-btn span.text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.toggle-btn span.text strong {
+    font-size: 0.95rem;
+}
+
+.toggle-btn span.text small {
+    display: block;
+    color: #a5d6a7;
+    font-size: 0.75rem;
+    font-weight: normal;
+}
+
+.action-section {
+    text-align: center;
+    margin: 40px 0;
+}
+
+#analyze-btn {
+    background-color: #1b4b27;
+    color: white;
+    border: 2px solid #4caf50;
+    padding: 15px 40px;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#analyze-btn:hover {
+    background-color: #2e7d32;
+}
+
+.arrow {
+    font-size: 1.2rem;
+}
+
+/* --- ESTILOS DE LA CONSOLA DE ESTADO --- */
+.status-console {
+    background-color: #0d1117;
+    border: 1px solid #30363d;
+    padding: 20px;
+    border-radius: 8px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.95rem;
+    margin-top: 20px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+}
+
+.status-console p {
+    margin: 8px 0;
+}
+
+/* Estados de los pasos */
+.step.waiting {
+    color: #8b949e;
+}
+
+.step.active {
+    color: #58a6ff;
+    font-weight: bold;
+}
+
+.step.done {
+    color: #3fb950;
+}
+
+
+/* Opcional: Si quieres que al dar click (focus) se iluminen igual */
+input[type="text"]:focus, input[type="password"]:focus, select:focus {
+    border-color: #58a6ff; /* Azul IBM/GitHub para el focus */
+}

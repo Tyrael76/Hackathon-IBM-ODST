@@ -1,0 +1,112 @@
+<!--Pantalla principal, input al repo-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ODST - Powered by IBM Bob</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ODST</h1>
+            <span class="badge">Powered by IBM Bob</span>
+        </header>
+
+        <form id="odst-form">
+            <div class="top-section">
+                <div class="input-group">
+                    <label for="github-token">Token de GitHub (PAT):</label>
+                    <input type="password" id="github-token" name="github-token" placeholder="ghp_xxxxxxxxxxxx" required>
+                    <small>Asegúrate de que tu token tenga permisos de lectura del repositorio</small>
+                </div>
+
+                <div class="input-group">
+                    <label for="repo-url">URL del repositorio:</label>
+                    <input type="text" id="repo-url" name="repo-url" placeholder="Ok-Andre/Pagina-web" required>
+                    <small>Asegúrate de que tu repositorio no contenga API Keys expuestas o información sensible</small>
+                </div>
+                <div class="input-group branch-group">
+                    <label for="branch">Selecciona tu rama</label>
+                    <select id="branch" name="branch">
+                        <option value="main">Main</option>
+                        <option value="master">Master</option>
+                        <option value="dev">Dev</option>
+                    </select>
+                </div>
+            </div>
+
+           <div class="options-section">
+                <h2>Que quieres generar:</h2>
+                
+                <div class="block">
+                    <h2>Bloque de Comprensión:</h2>
+                    <label class="toggle-btn">
+                        <input type="checkbox" name="options" value="onboarding">
+                        <div class="btn-content">
+                            <span class="text"><Strong>Onboarding Rápido</Strong></span>
+                            <span class="check-box"></span>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="block">
+                    <h2>Bloque de Generación:</h2>
+                    <div class="btn-row">
+                        <label class="toggle-btn">
+                            <input type="checkbox" name="options" value="documentacion">
+                            <div class="btn-content">
+                                <span class="text">
+                                    <strong>Documentación</strong>
+                                    <small>Archivos README.md, documentacion de API detallada</small>
+                                </span>
+                                <span class="check-box"></span>
+                            </div>
+                        </label>
+                        <label class="toggle-btn">
+                            <input type="checkbox" name="options" value="docstrings">
+                            <div class="btn-content">
+                                <span class="text"><Strong>Comentarios y Docstrings</Strong></span>
+                                <span class="check-box"></span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="block">
+                    <h2>Bloque de Calidad:</h2>
+                    <div class="btn-row">
+                        <label class="toggle-btn">
+                            <input type="checkbox" name="options" value="tests">
+                            <div class="btn-content">
+                                <span class="text"><Strong>Generacion de Test Unitarios</Strong></span>
+                                <span class="check-box"></span>
+                            </div>
+                        </label>
+                        <label class="toggle-btn">
+                            <input type="checkbox" name="options" value="refactor">
+                            <div class="btn-content">
+                                <span class="text"><Strong>Sugerencias de Refactorización</Strong></span>
+                                <span class="check-box"></span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-section">
+                <button type="submit" id="analyze-btn">Analizar Repositorio <span class="arrow">➤</span></button>
+            </div>
+        </form>
+
+        <div class="status-console" id="status-console" style="display: none;">
+            <p id="step-1" class="step waiting">[Waiting] Ingestando repositorio...</p>
+            <p id="step-2" class="step waiting">[Waiting] Agente Analista comprimiendo con AST y Regex...</p>
+            <p id="step-3" class="step waiting">[Waiting] Agente Escritor generando formato Markdown...</p>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/upload.js') }}"></script>
+</body>
+</html>
