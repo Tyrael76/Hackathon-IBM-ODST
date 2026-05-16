@@ -1,0 +1,176 @@
+{
+  "classes": {
+    "UserController": {
+      "inheritance": ["BaseController"],
+      "description": "Handles user authentication and profile management",
+      "methods": [
+        {
+          "name": "__init__",
+          "arguments": ["self", "database"],
+          "purpose": "Initialize controller with database connection"
+        },
+        {
+          "name": "register_user",
+          "arguments": ["self", "username", "email", "password"],
+          "purpose": "Register a new user in the system"
+        },
+        {
+          "name": "authenticate",
+          "arguments": ["self", "username", "password"],
+          "purpose": "Authenticate user credentials and return session token"
+        },
+        {
+          "name": "get_profile",
+          "arguments": ["self", "user_id"],
+          "purpose": "Retrieve user profile information"
+        },
+        {
+          "name": "update_profile",
+          "arguments": ["self", "user_id", "profile_data"],
+          "purpose": "Update user profile with new data"
+        }
+      ]
+    },
+    "ImageProcessor": {
+      "inheritance": [],
+      "description": "Class used to segment and process images within a pipeline",
+      "methods": [
+        {
+          "name": "configure",
+          "arguments": ["self", "threshold", "model_path"],
+          "purpose": "Configure image processing parameters and load ML model"
+        },
+        {
+          "name": "process_image",
+          "arguments": ["self", "image_path"],
+          "purpose": "Process a single image and return segmentation results"
+        },
+        {
+          "name": "batch_process",
+          "arguments": ["self", "image_paths", "output_dir"],
+          "purpose": "Process multiple images in batch mode"
+        },
+        {
+          "name": "validate_image",
+          "arguments": ["self", "image_data"],
+          "purpose": "Validate image format and dimensions before processing"
+        }
+      ]
+    },
+    "DatabaseManager": {
+      "inheritance": [],
+      "description": "Manages database connections and operations",
+      "methods": [
+        {
+          "name": "connect",
+          "arguments": ["self", "connection_string"],
+          "purpose": "Establish connection to the database"
+        },
+        {
+          "name": "execute_query",
+          "arguments": ["self", "query", "params"],
+          "purpose": "Execute SQL query with parameters"
+        },
+        {
+          "name": "commit",
+          "arguments": ["self"],
+          "purpose": "Commit current transaction"
+        },
+        {
+          "name": "rollback",
+          "arguments": ["self"],
+          "purpose": "Rollback current transaction"
+        },
+        {
+          "name": "close",
+          "arguments": ["self"],
+          "purpose": "Close database connection"
+        }
+      ]
+    },
+    "APIRouter": {
+      "inheritance": ["BaseRouter"],
+      "description": "Routes HTTP requests to appropriate controllers",
+      "methods": [
+        {
+          "name": "register_route",
+          "arguments": ["self", "path", "handler", "methods"],
+          "purpose": "Register a new route with its handler"
+        },
+        {
+          "name": "handle_request",
+          "arguments": ["self", "request"],
+          "purpose": "Process incoming HTTP request and route to handler"
+        },
+        {
+          "name": "add_middleware",
+          "arguments": ["self", "middleware"],
+          "purpose": "Add middleware to the request processing pipeline"
+        }
+      ]
+    },
+    "CacheManager": {
+      "inheritance": [],
+      "description": "Manages caching layer for improved performance",
+      "methods": [
+        {
+          "name": "get",
+          "arguments": ["self", "key"],
+          "purpose": "Retrieve value from cache by key"
+        },
+        {
+          "name": "set",
+          "arguments": ["self", "key", "value", "ttl"],
+          "purpose": "Store value in cache with time-to-live"
+        },
+        {
+          "name": "delete",
+          "arguments": ["self", "key"],
+          "purpose": "Remove value from cache"
+        },
+        {
+          "name": "clear",
+          "arguments": ["self"],
+          "purpose": "Clear all cached values"
+        }
+      ]
+    }
+  },
+  "global_functions": [
+    {
+      "name": "initialize_system",
+      "arguments": ["config_path"],
+      "purpose": "Initialize the entire system with configuration file"
+    },
+    {
+      "name": "load_configuration",
+      "arguments": ["config_file"],
+      "purpose": "Load and parse configuration from file"
+    },
+    {
+      "name": "setup_logging",
+      "arguments": ["log_level", "log_file"],
+      "purpose": "Configure logging system with specified level and output file"
+    },
+    {
+      "name": "validate_environment",
+      "arguments": [],
+      "purpose": "Validate that all required environment variables are set"
+    },
+    {
+      "name": "create_app",
+      "arguments": ["config"],
+      "purpose": "Factory function to create and configure the application instance"
+    },
+    {
+      "name": "handle_error",
+      "arguments": ["error", "context"],
+      "purpose": "Global error handler for logging and error response formatting"
+    },
+    {
+      "name": "sanitize_input",
+      "arguments": ["user_input"],
+      "purpose": "Sanitize user input to prevent injection attacks"
+    }
+  ]
+}
