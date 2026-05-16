@@ -33,6 +33,8 @@ app.add_middleware(
 class RepoRequest(BaseModel):
     github_token: str
     repository: str
+    branch: str | None = None
+    filters: dict | None = None
     extensions: List[str] | None = None
 
 @app.get("/")
@@ -45,10 +47,11 @@ async def extract_repository(request: RepoRequest):
     Receives token, repo and extensions from frontend.
     """
     try:
-        # Run the complete pipeline (Fetch, Compress, AI Analyze, Markdown Format)
+        output_json = os.path.join(os.path.dirname(os.path.abspath(__file__)), "agents", "compression_path", "para_uriel.json")
         orchestrate_pipeline(
             repository=request.repository,
             github_token=request.github_token,
+            output_file=output_json,
             max_workers=2 # keep workers reasonable to avoid heavy CPU usage
         )
         
