@@ -493,6 +493,24 @@ def orchestrate_pipeline(
     print(f"📦 Total files in repository: {len(compressed_repository)}")
     print("="*70 + "\n")
 
+    # --- PHASE 4: AUTOMATIC AI ANALYSIS (Uriel) ---
+    print("🤖 [AI ANALYSIS] Calling Uriel's analyzer...")
+    
+    # Extract project name from repository
+    project_name = repository.split('/')[-1] if '/' in repository else repository
+    
+    try:
+        # Import from conexiones package
+        from conexiones.conexion_uriel_antonio import generar_analisis
+        
+        # Generate AI analysis
+        analysis_result = generar_analisis(project_name)
+        print(f"✅ [AI ANALYSIS] Analysis completed and saved to paraGio.json")
+        
+    except Exception as e:
+        print(f"⚠️ [AI ANALYSIS] Could not complete analysis: {str(e)}")
+        print(f"   You can run it manually later with: generar_analisis('{project_name}')")
+
     # Return primary output file or list of files
     if len(output_files) == 1:
         return output_files[0]
@@ -513,5 +531,5 @@ if __name__ == "__main__":
     
     print("🧪 Running pipeline simulation with concurrent processing...")
     # You can adjust max_workers to control the level of parallelism
-    orchestrate_pipeline(REPO_MOCK, TOKEN_MOCK, max_workers=4)
+    orchestrate_pipeline("Repo", "Token", max_workers=4)
     
