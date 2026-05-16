@@ -1,246 +1,406 @@
-# GitHub Repository Extractor - API REST + Custom Tool
+# Hackathon-IBM-ODST
+# 📘 Automatic Technical Documentation System with AI
 
-Sistema de extracción de repositorios GitHub con **dos opciones de uso**:
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue) ![IBM watsonx.ai](https://img.shields.io/badge/IBM-watsonx.ai-6f42c1) ![Markdown](https://img.shields.io/badge/Docs-Markdown-success) ![MkDocs](https://img.shields.io/badge/Export-MkDocs-orange) ![Frontend](https://img.shields.io/badge/Frontend-JSON%20Ready-00a6a6)
 
-1. **API REST** (HTTP) - Para integración con frontend
-2. **Custom Tool** (Python) - Para uso directo en backend/agentes
+## 🧭 Overview
 
-## ✨ Características Principales
+This system converts GitHub repositories into navigable and structured technical documentation through local processing and artificial intelligence. The complete workflow includes dynamic repository ingestion, structural code compression, technical analysis with IBM watsonx.ai, automatic documentation writing, and JSON file generation for web frontend consumption.
 
-- 🔐 Autenticación con token de GitHub
-- 🧠 **Filtrado inteligente por MIME type** (sin especificar extensiones)
-- 📁 Filtrado tradicional por extensiones (opcional)
-- 💾 Sistema de caché para optimizar llamadas
-- 🌐 CORS configurado para frontend
-- 📊 Extracción de dependencias de código
+## 🎯 Problem It Solves
 
-## 📋 Requisitos
+Many software repositories lack clear and updated documentation, which makes it difficult to:
 
-- Python 3.9 o superior
-- Token de GitHub
+- **Onboard new developers**: Excessive time required to understand architecture and system flow.
+- **Code maintenance**: Lack of context about technical decisions and dependencies.
+- **Architecture understanding**: Absence of diagrams or explanations of how modules interact.
+- **Dependency identification**: Lack of knowledge about libraries, external APIs, and necessary configurations.
+- **Business logic**: Difficulty understanding what each component does and why it exists.
 
-## 🚀 Instalación y Uso
+## 🚀 Objective
 
-### 1. Activar el entorno virtual
+Generate automatic, structured, exportable technical documentation ready for web frontend consumption. The system analyzes source code, identifies architectural patterns, extracts dependencies, and produces navigable Markdown documentation, reducing the time needed to understand complex projects.
 
-```bash
-source venv/bin/activate
+## 🏗️ System Architecture
+
+The system is organized into specialized technical modules that process the repository in sequential stages:
+
+### 📥 1. Repository Ingestion Module
+
+**Responsibility**: Obtain repository files from GitHub and filter non-useful content.
+
+**Main files**:
+- `fetch_github_repo_tool.py`: Ingestion tool compatible with AI agents.
+- `gitAPI.py`: Extraction engine with intelligent MIME type filtering.
+
+**Operation**:
+- Downloads repository files using the GitHub API.
+- Applies intelligent filtering based on MIME types to discard binaries, images, compiled files, and system content.
+- Excludes common non-useful directories (`node_modules`, `__pycache__`, `.git`, `.venv`, etc.).
+- Limits file size to 150KB to optimize processing.
+- Delivers only text/code files to the next module.
+
+**Output**: Filtered file structure ready for compression.
+
+### 🧩 2. Structural Compression Module
+
+**Responsibility**: Reduce code before sending to AI to optimize token consumption.
+
+**Main files**:
+- `agents/compression_path/parser_core.py`: Main compression pipeline orchestrator.
+- `agents/compression_path/parser_py.py`: AST analyzer for Python files.
+- `agents/compression_path/parser_regex.py`: Pattern/regex analyzer for other languages.
+
+**Operation**:
+- **For Python**: Uses AST (Abstract Syntax Tree) analysis to extract classes, functions, methods, inheritance, and docstrings without executing code.
+- **For other languages**: Applies pattern and regex analysis to identify functions, classes, API endpoints, and relevant structures.
+- Generates compressed intermediate JSON with code structure.
+- Uses concurrent processing (ProcessPoolExecutor) to optimize analysis of large repositories.
+- Implements context window protection with automatic fragmentation if JSON exceeds safe limits.
+
+**Output**: `agents/compression_path/para_uriel.json` - Intermediate JSON with compressed code structure.
+
+### 🤖 3. AI Technical Analysis Module
+
+**Responsibility**: Analyze compressed code using IBM watsonx.ai to generate structured technical analysis.
+
+**Main files**:
+- `agents/api/motor.py`: Analysis engine using IBM Granite-4-h-small.
+- `conexiones/conexion_uriel_antonio.py`: Connector between compression and analysis modules.
+
+**Operation**:
+- Receives compressed JSON (`para_uriel.json`).
+- Sends code context to IBM watsonx.ai using the Granite-4-h-small model.
+- Generates technical analysis including:
+  - Repository context (tech stack, entry points, important files).
+  - System architecture and data flow.
+  - Business logic and main components.
+  - Setup and configuration instructions.
+  - Testing suggestions.
+  - Docker configuration if applicable.
+
+**Output**: `conexiones/paraGio.json` - JSON with complete technical analysis generated by AI.
+
+### ✍️ 4. Documentation Writer Module
+
+**Responsibility**: Convert technical analysis into structured and normalized Markdown documentation.
+
+**Main files**:
+- `agents/api/writer/writer_service.py`: Main documentation generation service.
+- `agents/api/writer/writer_agent.py`: Writer agent that structures documentation.
+- `agents/api/writer/watsonx_writer_client.py`: Client for watsonx.ai calls.
+- `agents/api/writer/docs_validator.py`: Documentation format and structure validator.
+
+**Operation**:
+- Receives technical analysis from `paraGio.json`.
+- Uses IBM watsonx.ai to write technical documentation in Markdown.
+- Normalizes output into structured format with navigable pages.
+- Validates that documentation meets expected format.
+- Generates final JSON optimized for frontend consumption.
+
+**Output**: `conexiones/frontend_docs.json` - Final JSON with documentation ready for frontend.
+
+### 📦 5. Export Module
+
+**Responsibility**: Generate Markdown files and exportable MkDocs projects.
+
+**Main files**:
+- `agents/api/writer/mkdocs_exporter.py`: MkDocs project exporter.
+
+**Operation**:
+- Generates individual Markdown files per section.
+- Creates complete MkDocs project with configuration and navigation structure.
+- Generates downloadable ZIP file with all documentation.
+- Stores exports in `generated_exports/`.
+
+**Output**: MkDocs project and ZIP in `generated_exports/`.
+
+### 🖥️ 6. Frontend
+
+**Responsibility**: Render generated documentation in navigable web interface.
+
+**Main files**:
+- `frontend/app.py`: Main Flask application.
+- `frontend/routes/main.py`: Frontend routes and endpoints.
+- `frontend/templates/`: HTML templates.
+- `frontend/static/`: Static resources (CSS, JavaScript).
+
+**Operation**:
+- Consumes `conexiones/frontend_docs.json`.
+- Renders Markdown to HTML.
+- Provides navigation through documentation pages.
+- Allows visualization and download of MkDocs exports.
+
+## 🔄 Complete Pipeline Flow
+
+```
+GitHub Repository
+        ↓
+File ingestion and filtering
+(fetch_github_repo_tool.py, gitAPI.py)
+        ↓
+Structural compression AST/Regex
+(parser_core.py, parser_py.py, parser_regex.py)
+        ↓
+Intermediate JSON for analysis
+(agents/compression_path/para_uriel.json)
+        ↓
+Technical analysis with IBM watsonx.ai
+(motor.py, conexion_uriel_antonio.py)
+        ↓
+Technical analysis JSON
+(conexiones/paraGio.json)
+        ↓
+Documentation writer agent
+(writer_service.py, writer_agent.py)
+        ↓
+Final JSON for frontend
+(conexiones/frontend_docs.json)
+        ↓
+Web frontend
+(frontend/app.py)
 ```
 
-### 2. Instalar dependencias
+### 🧾 Stage Details
 
+1. **Ingestion**: `fetch_github_repo_tool.py` and `gitAPI.py` download the repository and filter useful files using MIME types.
+
+2. **Compression**: `agents/compression_path/parser_core.py` orchestrates the analysis. Uses `parser_py.py` for Python (AST) and `parser_regex.py` for other languages. Generates `agents/compression_path/para_uriel.json`.
+
+3. **AI Analysis**: `conexiones/conexion_uriel_antonio.py` reads `para_uriel.json`, sends it to `agents/api/motor.py` which uses IBM watsonx.ai to generate technical analysis in `conexiones/paraGio.json`.
+
+4. **Writing**: `agents/api/writer/writer_service.py` processes `paraGio.json`, uses watsonx.ai to write documentation and generates `conexiones/frontend_docs.json`.
+
+5. **Export**: `agents/api/writer/mkdocs_exporter.py` creates MkDocs project in `generated_exports/`.
+
+6. **Frontend**: `frontend/app.py` consumes `conexiones/frontend_docs.json` and renders the documentation.
+
+## 🗂️ Folder Structure
+
+```
+Hackathon-IBM-ODST/
+├── agents/                          # Processing modules
+│   ├── compression_path/            # Structural code compression
+│   │   ├── parser_core.py          # Main pipeline orchestrator
+│   │   ├── parser_py.py            # AST analyzer for Python
+│   │   ├── parser_regex.py         # Regex analyzer for other languages
+│   │   └── para_uriel.json         # Compressed intermediate JSON
+│   └── api/                         # Analysis and writing modules
+│       ├── motor.py                 # Analysis engine with IBM watsonx.ai
+│       └── writer/                  # Documentation writer module
+│           ├── writer_service.py    # Main generation service
+│           ├── writer_agent.py      # Writer agent
+│           ├── watsonx_writer_client.py  # watsonx.ai client
+│           ├── docs_validator.py    # Documentation validator
+│           └── mkdocs_exporter.py   # MkDocs exporter
+├── conexiones/                      # Module connectors
+│   ├── conexion_uriel_antonio.py   # Compression-analysis connector
+│   ├── paraGio.json                # Technical analysis JSON
+│   └── frontend_docs.json          # Final JSON for frontend
+├── frontend/                        # Web application
+│   ├── app.py                      # Main Flask application
+│   ├── routes/                     # Frontend routes
+│   ├── templates/                  # HTML templates
+│   └── static/                     # CSS and JavaScript
+├── generated_exports/               # Generated MkDocs exports
+├── fetch_github_repo_tool.py       # GitHub ingestion tool
+├── gitAPI.py                       # Extraction engine with filtering
+├── main.py                         # FastAPI REST API
+└── requirements.txt                # Project dependencies
+```
+
+## ✅ Requirements
+
+- **Python 3.10 or higher**
+- **IBM watsonx.ai access**: Valid credentials (API key, Project ID, URL).
+- **GitHub token**: For repository access (public or private as needed).
+- **Python dependencies**: Installed from `requirements.txt`.
+
+**Important**: IBM watsonx.ai credentials and GitHub token must be configured locally and should never be included in source code or uploaded to the repository.
+
+## 📚 Dependencies
+
+The project uses the following main dependencies grouped by purpose:
+
+### 🧠 IBM watsonx.ai
+- `ibm-watsonx-ai>=0.2.0`: Official SDK to interact with IBM watsonx.ai and Granite models.
+
+### ☁️ GitHub/API
+- `PyGithub==2.1.1`: Python client for GitHub API.
+- `requests>=2.31.0`: HTTP library for API calls.
+
+### 🔌 Backend/API
+- `fastapi==0.104.1`: Modern web framework for REST API.
+- `uvicorn[standard]==0.24.0`: ASGI server for FastAPI.
+- `flask>=3.0.0`: Web framework for frontend.
+- `flask-cors>=4.0.0`: CORS handling in Flask.
+
+### 🛡️ Validation
+- `pydantic==2.5.0`: Data validation and models.
+
+### 📊 Data Processing
+- `pandas>=2.0.0`: Data manipulation and analysis.
+- `numpy>=1.24.0`: Numerical operations.
+
+### 🧑‍💻 AI Agents
+- `langchain>=0.0.335,<0.0.336`: Framework for LLM applications.
+- `langchain-core>=0.1.0`: LangChain core components.
+- `crewai>=0.1.0`: Framework for collaborative agents.
+
+### 📤 Documentation Export
+- `mkdocs>=1.5.0`: Static documentation site generator.
+- `mkdocs-material>=9.5.0`: Material Design theme for MkDocs.
+
+### 📁 File Handling
+- `PyPDF2>=3.0.0`: PDF file reading.
+- `python-docx>=1.0.0`: DOCX file reading.
+
+### 🧪 Testing
+- `pytest>=7.4.0`: Testing framework.
+- `pytest-cov>=4.1.0`: Code coverage for pytest.
+
+### 🛠️ Utilities
+- `python-dotenv>=1.0.0`: Load environment variables from files.
+- `python-json-logger>=2.0.0`: Structured JSON logging.
+
+## 🔐 Environment Configuration
+
+The project requires local environment variables for IBM watsonx.ai and GitHub. These credentials are sensitive and must be handled carefully:
+
+**Configuration requirements**:
+- Credentials must be placed in a local `.env` file at the project root or configured as system environment variables.
+- The `.env` file **MUST NOT be uploaded to the repository** (already included in `.gitignore`).
+- **Never write tokens or API keys directly in source code**.
+- **Do not share credentials** in public repositories, messages, screenshots, or documentation.
+
+**Required variables**:
+- IBM watsonx.ai credentials (API key, Project ID, service URL).
+- GitHub token for repository access.
+
+Consult the official IBM watsonx.ai and GitHub documentation to obtain your credentials.
+
+## ⚙️ Installation
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd Hackathon-IBM-ODST
+```
+
+2. Create a virtual environment (recommended):
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Iniciar el servidor FastAPI
+## ▶️ Execution
+
+### 🌐 Option 1: REST API (Recommended for frontend integration)
+
+Start the FastAPI server:
 
 ```bash
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-El servidor estará disponible en: **http://localhost:8000**
+The server will be available at `http://localhost:8000`.
 
-### 4. Documentación interactiva
+**Interactive documentation**:
+- Swagger UI: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
 
-Una vez iniciado el servidor, accede a:
+**Main endpoint**: `POST /extract`
 
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
-
-## 📡 Endpoints de la API
-
-### `GET /`
-
-Verifica que el servidor esté activo.
-
-**Respuesta:**
+Send a request with the repository to analyze:
 
 ```json
 {
-  "message": "Servidor de Extracción Activo"
+  "github_token": "your_token_here",
+  "repository": "user/repository",
+  "branch": "main"
 }
 ```
 
-### `POST /extract`
+The system will execute the complete pipeline and return the generated documentation JSON.
 
-Extrae archivos de un repositorio de GitHub.
+### 🧵 Option 2: Direct pipeline execution
 
-**Body (JSON):**
-
-```json
-{
-  "github_token": "tu_token_aqui",
-  "repository": "usuario/repositorio",
-  "extensions": [".py", ".js", ".html"]
-}
-```
-
-**Respuesta exitosa:**
-
-```json
-{
-  "status": "success",
-  "repo": "usuario/repositorio",
-  "file_count": 15,
-  "files": [
-    {
-      "path": "src/main.py",
-      "dependencies": ["os", "json"],
-      "content": "...",
-      "size": 1024
-    }
-  ]
-}
-```
-
-## 🔧 Opción 1: API REST (HTTP)
-
-Ideal para **frontend** o **servicios externos**.
-
-### Iniciar el servidor:
+Run the main orchestrator:
 
 ```bash
-source venv/bin/activate
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+python agents/compression_path/parser_core.py
 ```
 
-### Hacer petición:
+Or run the complete connector:
 
 ```bash
-curl -X POST http://localhost:8000/extract \
-  -H "Content-Type: application/json" \
-  -d '{
-    "github_token": "tu_token",
-    "repository": "usuario/repositorio",
-    "extensions": null
-  }'
+python conexiones/conexion_uriel_antonio.py
 ```
 
-**Documentación interactiva:** http://localhost:8000/docs
+### 🖼️ Web Frontend
+
+To visualize the generated documentation:
+
+```bash
+cd frontend
+python app.py
+```
+
+The frontend will be available at `http://localhost:5000`.
+
+**File consumed by frontend**: `conexiones/frontend_docs.json`
+
+This is the final file containing all structured documentation ready to render in the web interface.
+
+## 📦 MkDocs Export
+
+The system can generate exportable documentation in MkDocs format. Exports are stored in `generated_exports/` and include:
+
+- Individual Markdown files per section.
+- Complete MkDocs project with configuration (`mkdocs.yml`).
+- Downloadable ZIP file with all documentation.
+
+This export allows:
+- Offline documentation consultation.
+- Download and share generated documentation.
+- Integration with existing documentation systems.
+- Publishing on GitHub Pages or other static hosting services.
+
+## ⚠️ Important Notes
+
+### 🔒 Security
+- **Do not upload the `.env` file to the repository**. It's already included in `.gitignore`.
+- **Do not upload tokens or API keys** in any project file.
+- **Do not write credentials directly in code**. Always use environment variables.
+- Review that no credentials are exposed before making commits.
+
+### 💳 Resource Consumption
+- The complete workflow **consumes IBM watsonx.ai credits** on each execution.
+- Analysis of large repositories may take several minutes.
+- Concurrent processing is optimized for 2 workers by default (configurable in `main.py`).
+
+### 🧾 Generated Files
+- Generated JSONs (`para_uriel.json`, `paraGio.json`, `frontend_docs.json`) **may change each time the pipeline runs**.
+- If you change the analyzed repository, **you must regenerate all outputs**.
+- Files in `generated_exports/` are overwritten on each execution.
+
+### 🚧 Known Warnings
+- Some deprecation warnings from the IBM watsonx.ai SDK may appear in the console.
+- These warnings **do not block current system execution**.
+- It's recommended to update the SDK when stable versions are available.
+
+### 🌍 Compatibility
+- The system is designed to work on Windows, Linux, and macOS.
+- File paths use `pathlib` for cross-platform compatibility.
+- Concurrent processing automatically adapts to the number of available CPUs.
 
 ---
 
-## 🐍 Opción 2: Custom Tool (Python)
+**Developed for Hackathon IBM ODST**
 
-Ideal para **backend**, **scripts** o **agentes de IA**.
-
-### Uso Básico:
-
-```python
-from fetch_github_repo_tool import fetch_github_repo_tool
-
-# Extracción con extensiones específicas
-result = fetch_github_repo_tool(
-    repository="usuario/repositorio",
-    github_token="ghp_xxxxx",
-    extensions=[".py", ".js", ".html"]
-)
-
-print(f"Archivos extraídos: {result['file_count']}")
-```
-
-### Con Filtrado Inteligente (Recomendado):
-
-```python
-from fetch_github_repo_tool import fetch_github_repo_tool
-
-# El sistema detecta automáticamente archivos de texto usando MIME types
-result = fetch_github_repo_tool(
-    repository="usuario/repositorio",
-    github_token="ghp_xxxxx",
-    extensions=None  # Filtrado inteligente activado
-)
-
-# Descarta automáticamente:
-# - Binarios (.exe, .dll, .so)
-# - Imágenes (.png, .jpg, .gif)
-# - Compilados (.pyc, .class)
-# - Archivos comprimidos (.zip, .tar, .gz)
-```
-
----
-
-## 📁 Estructura del Proyecto
-
-```
-hIBM/
-├── main.py                      # API REST FastAPI
-├── gitAPI.py                    # Motor de extracción + filtrado MIME
-├── fetch_github_repo_tool.py    # Custom Tool para uso directo
-├── requirements.txt             # Dependencias
-├── .env                         # Token GitHub (no compartir)
-└── .gitignore                   # Archivos excluidos
-```
-
-## ⚙️ Configuración del Filtrado
-
-### Filtrado Tradicional (Por Extensión)
-
-```python
-extensions = [".py", ".js", ".html", ".css"]
-```
-
-### Filtrado Inteligente (Por MIME Type)
-
-El sistema detecta automáticamente:
-
-**✅ Archivos Permitidos:**
-
-- Texto plano (`text/*`)
-- JSON (`application/json`)
-- XML (`application/xml`)
-- JavaScript (`application/javascript`)
-- Python (`application/x-python`)
-- YAML (`application/yaml`)
-- Scripts shell (`application/x-sh`)
-
-**❌ Archivos Rechazados:**
-
-- Imágenes (`image/*`)
-- Videos (`video/*`)
-- Audio (`audio/*`)
-- Binarios (`application/octet-stream`)
-- Ejecutables (`application/x-executable`)
-- PDFs (`application/pdf`)
-- Archivos comprimidos (`application/zip`, `application/gzip`)
-
-### Configuración Adicional
-
-- **Tamaño máximo**: 150KB por archivo
-- **Directorios excluidos**: `node_modules`, `__pycache__`, `.git`, `.venv`, `venv`, `env`, `.idea`, `.vscode`
-
----
-
-## ⚙️ Configuración
-
-### Filtrado Inteligente (MIME Type)
-
-Detecta automáticamente el tipo de archivo:
-
-**✅ Acepta:**
-
-- Código: `.py`, `.js`, `.java`, `.kt`, `.go`, etc.
-- Configuración: `.json`, `.yaml`, `.xml`, `.toml`
-- Documentación: `.md`, `.txt`, `.rst`
-
-**❌ Rechaza:**
-
-- Binarios: `.exe`, `.dll`, `.so`
-- Imágenes: `.png`, `.jpg`, `.gif`
-- Compilados: `.pyc`, `.class`, `.jar`
-- Comprimidos: `.zip`, `.tar`, `.gz`
-
-### Límites
-
-- **Tamaño máximo:** 150KB por archivo
-- **Directorios excluidos:** `node_modules`, `__pycache__`, `.git`, `venv`
-
----
-
-## 📝 Notas
-
-- Token de GitHub es **sensible** - nunca lo compartas
-- Sistema de caché evita límites de API
-- CORS configurado para desarrollo (cambiar en producción)
-- Entorno virtual (`venv/`) excluido de Git
+Automatic technical documentation system using IBM watsonx.ai and intelligent code processing.
