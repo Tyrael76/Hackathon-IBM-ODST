@@ -1,0 +1,59 @@
+{
+  "project_name": "Pagina-web",
+  "documentation_format": "markdown",
+  "generated_at": "2026-05-15T00:00:00Z",
+  "pages": [
+    {
+      "title": "Overview",
+      "slug": "overview",
+      "order": 1,
+      "markdown": "# Overview\n## Project summary\nThis is a Flask-based web application that provides a RESTful API for managing contacts stored in a MySQL database. The app allows creating, reading, updating, and deleting contacts.\n## Detected technologies\n- Flask\n- MySQL"
+    },
+    {
+      "title": "Architecture",
+      "slug": "architecture",
+      "order": 2,
+      "markdown": "# Architecture\n## General description\nThe system follows a layered architecture pattern.\n## Main components\n- `app.py`: Main entry point exposing Flask routes.\n- `database.py`: Handles MySQL connection and queries using mysql.connector.\n- `modelos.py`: Defines the Contact model class representing a row in the contacts table.\n- `operaciones.py`: Implements business logic for CRUD operations on contacts.\n- `config.py`: Placeholder for configuration settings.\n- `requerimientos.txt`: Lists Python dependencies.\n- `script.js`: Front-end JavaScript functions interacting with the backend API."
+    },
+    {
+      "title": "Business logic",
+      "slug": "business-logic",
+      "order": 3,
+      "markdown": "# Business logic\n## Main flow\n1. Client sends HTTP requests to Flask endpoints defined in `app.py`.\n2. Routes call corresponding methods in `operaciones.py`.\n3. `operaciones` uses `database` instance to execute SQL via `ejecutar_consulta`, `obtener_todo`, etc.\n4. Results are converted to/from `Contact` objects from `modelos.py`.\n5. Responses are sent back through Flask's jsonify.\n## Relevant decisions\n- Contacts are represented by `Contact` objects with id, name, phone, email attributes.\n- Database interactions use parameterized queries to prevent injection.\n- Each operation checks for existence/validity of IDs where appropriate.\n- Error handling returns meaningful messages/status codes."
+    },
+    {
+      "title": "Onboarding path",
+      "slug": "onboarding-path",
+      "order": 4,
+      "markdown": "# Onboarding path\n## Recommended reading order\n1. Start with `config.py` to understand setup requirements\n2. Read `requerimientos.txt` for dependencies\n3. Examine `database.py` for DB schema and connections\n4. Study `modelos.py` to understand data structures\n5. Explore `operaciones.py` for business logic implementation\n6. Review `app.py` to see route definitions and request handling\n7. Finally look at `script.js` for client-side integration points"
+    },
+    {
+      "title": "Setup",
+      "slug": "setup",
+      "order": 5,
+      "markdown": "# Setup\n\n## General description\n\n1. Clone the repository\n2. Create virtualenv: python -m venv .venv\n3. Activate it: source .venv/bin/activate (Linux) or .venv\\Scripts\\activate (Windows)\n4. Install dependencies: pip install -r requerimientos.txt\n5. Set up MySQL database matching config.py credentials\n6. Run migrations if needed (not implemented here)\n7. Start server: python app.py\n8. Access Swagger UI at http://127.0.0.1:5000/docs\n\n## Suggested steps\n\n1. Review the general project instructions.\n2. Prepare the local environment according to the detected dependencies.\n3. Run the project following the indicated configuration."
+    },
+    {
+      "title": "Suggested tests",
+      "slug": "testing",
+      "order": 6,
+      "markdown": "# Suggested tests\n\n## Summary\n\nUse pytest with Flask test client for unit tests. Test each endpoint with normal, edge, and malicious cases. Mock database layer for faster execution.\n\n## Normal cases\n\n- GET /contacts returning list of contacts\n- POST /contacts adding new contact\n- PUT /contacts/<id> updating existing contact\n- DELETE /contacts/<id> removing contact\n\n## Edge cases\n\n- Searching non-existent term\n- Updating contact with invalid ID\n- Deleting non-existent contact\n\n## Robustness validations\n\n- SQL injection attempts in search/query parameters\n- Large payloads exceeding reasonable limits\n- Cross-site scripting in returned HTML contexts\n\n## Privacy checks\n\n- Ensure no sensitive info leaks in error messages\n- Validate input sanitization across endpoints\n- Check authentication/authorization mechanisms (if added later)\n- Verify GDPR compliance for personal data handling"
+    },
+    {
+      "title": "Docker",
+      "slug": "docker",
+      "order": 7,
+      "markdown": "# Docker\n\n## Explanation\n\nContainerize the Flask app for consistent deployment. Use multi-stage build to keep image small. Link to external MySQL service via docker-compose.\n\n## Suggested Dockerfile\n\n```dockerfile\nFROM python:3.11-slim\n\nWORKDIR /app\nCOPY requerimientos.txt ./\nRUN pip install --no-cache-dir -r requerimientos.txt\nCOPY . .\nEXPOSE 5000\nCMD [\"gunicorn\", \"-b\", \":5000\", \"app:app\"]\n```\n\n## Suggested Compose\n\n```yaml\nversion: '3.8'\nservices:\n  db:\n    image: mysql:8.0\n    environment:\n      MYSQL_ROOT_PASSWORD: root\n      MYSQL_DATABASE: contacts_db\n    ports:\n      - \"3306:3306\"\n  api:\n    build: .\n    depends_on:\n      - db\n    ports:\n      - \"5000:5000\"\n    environment:\n      FLASK_APP: app.py\n      DATABASE_URL: mysql+mysqlconnector://root:root@db/contacts_db\n```"
+    },
+    {
+      "title": "Repository map",
+      "slug": "repo-map",
+      "order": 8,
+      "markdown": "# Repository map\n\n## Repository\n\n\n\n## Entry points\n\n- No information available.\n\n## Important files\n\nNo information available.\n\n## Internal dependencies\n\nNo information available."
+    }
+  ],
+  "exports": {
+    "mkdocs_available": true,
+    "download_url": "C:\\Users\\Gio13\\OneDrive\\Documentos\\Hackathon-IBM-ODST\\generated_exports\\Pagina-web-mkdocs.zip"
+  }
+}
