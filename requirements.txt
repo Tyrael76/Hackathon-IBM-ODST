@@ -1,0 +1,44 @@
+# Dependencias para el proyecto Hackathon IBM ODST
+
+# IBM Watsonx AI SDK
+ibm-watsonx-ai>=0.2.0
+
+# Utilidades
+python-dotenv>=1.0.0
+
+# Web Framework (si usas Flask/FastAPI)
+flask>=3.0.0
+flask-cors>=4.0.0
+
+# Procesamiento de datos
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Logging y monitoreo
+python-json-logger>=2.0.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Validación de datos
+pydantic>=2.0.0
+
+# Manejo de archivos
+PyPDF2>=3.0.0
+python-docx>=1.0.0
+
+# Utilidades adicionales
+requests>=2.31.0
+PyGithub==2.1.1
+
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+langchain>=0.0.335,<0.0.336
+langchain-core>=0.1.0
+crewai>=0.1.0
+
+# MkDocs export/viewer
+mkdocs>=1.5.0
+mkdocs-material>=9.5.0

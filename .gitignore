@@ -1,6 +1,24 @@
-.env
-*.env
+
+
+
 generated_exports/
 *.zip
+
+# Entorno virtual
+venv/
+env/
+.venv/
+
+# Seguridad (TU TOKEN)
+.env
+Token.txt
+
+# Caché y archivos temporales
 __pycache__/
 *.pyc
+cache_*.json
+repo_data.json
+
+# Archivos de sistema Mac
+.DS_Store
+
