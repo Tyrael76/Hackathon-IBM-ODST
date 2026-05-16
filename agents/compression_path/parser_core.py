@@ -46,9 +46,9 @@ try:
     # Ingestion Tool (Andre's Part - now it will find it in the root)
     from fetch_github_repo_tool import fetch_github_repo_tool
     # Python Parser by AST (Antonio's Part - Optimized Version)
-    from parser_py import compress_python_code
+    from agents.compression_path.parser_py import compress_python_code
     # Multi-language Parser by Regex (Antonio's Part - Robust Version)
-    from parser_regex import compress_regex_code
+    from agents.compression_path.parser_regex import compress_regex_code
 except ImportError as e:
     print(f"❌ Critical Import Error: {e}")
     print("Make sure 'fetch_github_repo_tool.py' is in the root, and parsers are in the same directory.")

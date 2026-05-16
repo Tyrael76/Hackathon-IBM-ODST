@@ -68,7 +68,7 @@
             <label class="toggle-btn">
                 <input type="checkbox" name="filtros" value="overview">
                 <div class="btn-content">
-                    <span class="text">Start (Overview)</span>
+                    <span class="text">Overview</span>
                     <span class="check-box"></span>
                 </div>
             </label>
@@ -85,43 +85,6 @@
                 <input type="checkbox" name="filtros" value="business-logic">
                 <div class="btn-content">
                     <span class="text">Business Logic</span>
-                    <span class="check-box"></span>
-                </div>
-            </label>
-
-            <label class="toggle-btn">
-                <input type="checkbox" name="filtros" value="setup">
-                <div class="btn-content">
-                    <span class="text">Installation</span>
-                    <span class="check-box"></span>
-                </div>
-            </label>
-        </div>
-    </div>
-
-    <div class="block">
-        <h3>Quality Block</h3>
-        <div class="btn-row">
-            <label class="toggle-btn">
-                <input type="checkbox" name="filtros" value="testing">
-                <div class="btn-content">
-                    <span class="text">Suggested Tests</span>
-                    <span class="check-box"></span>
-                </div>
-            </label>
-
-            <label class="toggle-btn">
-                <input type="checkbox" name="filtros" value="docker">
-                <div class="btn-content">
-                    <span class="text">Docker</span>
-                    <span class="check-box"></span>
-                </div>
-            </label>
-
-            <label class="toggle-btn">
-                <input type="checkbox" name="filtros" value="repo-map">
-                <div class="btn-content">
-                    <span class="text">Repository Map</span>
                     <span class="check-box"></span>
                 </div>
             </label>
@@ -144,126 +107,46 @@
             <div class="results-header">Successfully generated sections</div>
 
             <div class="accordion-item" id="module-overview">
-                <button class="accordion-header">Onboarding</button>
+                <button class="accordion-header">Overview</button>
                 <div class="accordion-content">
-                    <div class="layout-2-col">
-                        <div>
-                            <p class="section-label">Project name:</p>
-                            <p id="res-project-name" style="font-size:2rem;font-weight:700;color:#fff;margin:4px 0 18px;"></p>
-                            <p class="section-label">Description:</p>
-                            <div class="grey-box" id="res-project-desc"></div>
-                        </div>
-                        <div class="side-panel">
-                            <p class="section-label" style="margin-bottom:4px;">Repository Status:</p>
-                            <p id="res-repo-status"></p>
-                            <p class="section-label" style="margin-bottom:4px; margin-top:10px;">Last analysis date:</p>
-                            <p id="res-analysis-date"></p>
-                            <p class="section-label" style="margin-bottom:4px; margin-top:10px;">Quick metrics:</p>
-                            <p id="res-metrics"></p>
-                            <p class="section-label" style="margin-bottom:4px; margin-top:10px;">Detected Technologies:</p>
-                            <p style="margin:0 0 4px;font-size:0.8rem;color:#8b949e;">Languages</p>
-                            <div class="lang-bar" id="res-lang-bar"></div>
-                            <div class="lang-legend" id="res-lang-legend"></div>
-                        </div>
-                    </div>
+                    <p class="section-label">DESCRIPTION:</p>
+                    <div class="content-text" id="res-overview-desc" style="margin-bottom: 20px; line-height: 1.6; color: #c9d1d9;"></div>
+                    
+                    <p class="section-label">DETECTED TECHNOLOGIES:</p>
+                    <div class="grey-box" id="res-overview-tech"></div>
                 </div>
             </div>
 
             <div class="accordion-item" id="module-architecture">
-                <button class="accordion-header">Architecture:</button>
+                <button class="accordion-header">Architecture</button>
                 <div class="accordion-content">
-                    <div class="layout-50-50 mb">
-                        <div>
-                            <p class="section-label">Architecture Style:</p>
-                            <div class="grey-box" id="res-arch-style"></div>
-                        </div>
-                        <div>
-                            <p class="section-label">Identified design patterns:</p>
-                            <div class="grey-box" id="res-arch-patterns"></div>
-                        </div>
-                    </div>
-                    <p class="section-label">Main Data Flow:</p>
-                    <div class="grey-box" id="res-arch-flow"></div>
+                    <p class="section-label">DESCRIPTION:</p>
+                    <div class="content-text" id="res-arch-desc" style="margin-bottom: 20px; line-height: 1.6; color: #c9d1d9;"></div>
+                    
+                    <p class="section-label">MAIN COMPONENTS:</p>
+                    <div class="grey-box" id="res-arch-components"></div>
                 </div>
             </div>
 
             <div class="accordion-item" id="module-business-logic">
                 <button class="accordion-header">Business Logic</button>
                 <div class="accordion-content">
-                    <p class="section-label">Core Process:</p>
-                    <div class="grey-box mb" id="res-biz-core"></div>
-                    <p class="section-label">Main Entities:</p>
-                    <div class="grey-box mb" id="res-biz-entities"></div>
-                    <p class="section-label">Strict Rules:</p>
-                    <div class="grey-box" id="res-biz-rules"></div>
+                    <p class="section-label">DESCRIPTION (MAIN FLOW):</p>
+                    <div class="content-text" id="res-biz-flow" style="margin-bottom: 20px; line-height: 1.6; color: #c9d1d9;"></div>
+                    
+                    <p class="section-label">RELEVANT DECISIONS:</p>
+                    <div class="grey-box" id="res-biz-decisions"></div>
                 </div>
             </div>
 
             <div class="accordion-item" id="module-onboarding-path">
                 <button class="accordion-header">Onboarding Path</button>
                 <div class="accordion-content">
-                    <p class="section-label">Suggested Reading Order:</p>
-                    <div class="grey-box mb" id="res-path-order"></div>
-                    <p class="section-label">Key Repository Concepts:</p>
-                    <div class="grey-box mb" id="res-path-concepts"></div>
-                    <p class="section-label">First Commit Checklist:</p>
-                    <div class="grey-box" id="res-path-checklist"></div>
-                </div>
-            </div>
-
-            <div class="accordion-item" id="module-setup">
-                <button class="accordion-header">Installation</button>
-                <div class="accordion-content">
-                    <p class="section-label">Prerequisites:</p>
-                    <div class="grey-box mb" id="res-setup-prereqs"></div>
-                    <p class="section-label">Environment Variables:</p>
-                    <div class="grey-box mb" id="res-setup-env"></div>
-                    <p class="section-label">Console Commands:</p>
-                    <div class="grey-box code-box" id="res-setup-commands"></div>
-                </div>
-            </div>
-
-            <div class="accordion-item" id="module-testing">
-                <button class="accordion-header">Suggested Tests</button>
-                <div class="accordion-content">
-                    <div class="layout-50-50 mb">
-                        <div>
-                            <p class="section-label">Happy Path Cases:</p>
-                            <div class="grey-box" id="res-test-happy"></div>
-                        </div>
-                        <div>
-                            <p class="section-label">Edge Cases:</p>
-                            <div class="grey-box" id="res-test-edge"></div>
-                        </div>
-                    </div>
-                    <p class="section-label">Cybersecurity Matrix (Malicious Cases):</p>
-                    <div class="grey-box mb" id="res-test-security"></div>
-                    <p class="section-label">Privacy Reviews (PII):</p>
-                    <div class="grey-box" id="res-test-privacy"></div>
-                </div>
-            </div>
-
-            <div class="accordion-item" id="module-docker">
-                <button class="accordion-header">Docker</button>
-                <div class="accordion-content">
-                    <p class="section-label">Infrastructure Explanation:</p>
-                    <div class="grey-box mb" id="res-docker-infra"></div>
-                    <p class="section-label">Suggested Dockerfile:</p>
-                    <div class="grey-box code-box mb" id="res-docker-file"></div>
-                    <p class="section-label">Suggested Docker Compose:</p>
-                    <div class="grey-box code-box" id="res-docker-compose"></div>
-                </div>
-            </div>
-
-            <div class="accordion-item" id="module-repo-map">
-                <button class="accordion-header">Repository Map</button>
-                <div class="accordion-content">
-                    <p class="section-label">Entry Points:</p>
-                    <div class="grey-box mb" id="res-map-entry"></div>
-                    <p class="section-label">Files and Impact Table:</p>
-                    <div class="grey-box mb" style="padding:0;overflow:hidden;" id="res-map-table"></div>
-                    <p class="section-label">Internal Dependencies Graph:</p>
-                    <div class="grey-box" style="padding:0;overflow:hidden;" id="res-map-graph"></div>
+                    <p class="section-label">DESCRIPTION:</p>
+                    <div class="content-text" style="margin-bottom: 20px; line-height: 1.6; color: #c9d1d9;">Below is the recommended reading order and key concepts to get familiar with this repository efficiently.</div>
+                    
+                    <p class="section-label">RECOMMENDED READING ORDER:</p>
+                    <div class="grey-box" id="res-path-order"></div>
                 </div>
             </div>
 

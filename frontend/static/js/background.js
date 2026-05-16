@@ -4,12 +4,10 @@ if (glowBg) {
     window.addEventListener('mousemove', (e) => {
         const { clientX, clientY } = e;
         
-        // Actualiza las variables CSS con la posición exacta del mouse
         glowBg.style.setProperty('--mouse-x', `${clientX}px`);
         glowBg.style.setProperty('--mouse-y', `${clientY}px`);
     });
 
-    // Opcional: Centrar la luz si el mouse sale de la pantalla
     window.addEventListener('mouseout', () => {
         glowBg.style.setProperty('--mouse-x', `50vw`);
         glowBg.style.setProperty('--mouse-y', `50vh`);
@@ -19,8 +17,8 @@ const canvas = document.getElementById('bg-canvas');
 const ctx = canvas.getContext('2d');
 
 let particlesArray = [];
-const particleCount = 120; // Incrementado para mayor densidad
-const connectionDistance = 150; // Líneas más largas
+const particleCount = 120; 
+const connectionDistance = 150;
 
 const mouse = {
     x: null,

@@ -45,11 +45,7 @@ document.getElementById('odst-form').addEventListener('submit', async function(e
         "overview": false,
         "architecture": false,
         "business-logic": false,
-        "onboarding-path": false,
-        "setup": false,
-        "testing": false,
-        "docker": false,
-        "repo-map": false
+        "onboarding-path": false
     };
 
     const checkboxes = document.querySelectorAll('input[name="filtros"]');
@@ -98,30 +94,22 @@ document.getElementById('odst-form').addEventListener('submit', async function(e
         if (response.ok && data.status === 'success') {
             // extraction success
             step1.className = "step done";
-            step1.innerHTML = `[Done] Repository cloned. ✅ ${data.file_count} files ready.`;
+            step1.innerHTML = `[Done] Repository cloned and processed. ✅`;
             
-            step2.className = "step active";
-            step2.innerHTML = "[Activate] Sending files to Antonio (AST Compression)...";
+            step2.className = "step done";
+            step2.innerHTML = "[Done] Compressed Context JSON generated.";
 
-            // NOTE:
-            // This is where you would take "data.files" and launch the POST to the Flask Blueprint
-            // in endpoints.py so Antonio runs his AST script.
-            console.log("Files ready for compression:", data.files);
-
-            // Simulate the rest of the visual flow for the PoC
-            setTimeout(() => {
-                step2.className = "step done";
-                step2.innerHTML = "[Done] Compressed Context JSON generated.";
-                step3.className = "step active";
-                step3.innerHTML = "[Activate] Uriel (Bob) analyzing and Gio formatting...";
-            }, 2000);
-
-            setTimeout(() => {
-                step3.className = "step done";
-                step3.innerHTML = "[Done] Documentation generated successfully.";
-                btn.innerHTML = "Analysis Completed";
-                btn.disabled = false; // Reactivate in case they want to analyze another
-            }, 4500);
+            step3.className = "step done";
+            step3.innerHTML = "[Done] Documentation generated successfully.";
+            btn.innerHTML = "Analysis Completed";
+            btn.disabled = false; // Reactivate in case they want to analyze another
+            
+            // Render the actual results using the pages array from the backend
+            if (data.frontend_docs && data.frontend_docs.pages) {
+                // Filtra solo los módulos que fueron seleccionados
+                const filteredPages = data.frontend_docs.pages.filter(page => filtrosSeleccionados[page.slug]);
+                renderizarResultadosDinamicos(filteredPages);
+            }
 
         } else {
             throw new Error(data.message || "Unknown error in extraction");

@@ -5,7 +5,7 @@ function renderizarResultadosDinamicos(pagesArray) {
     if (!container) return;
 
     // Reiniciar vista
-    ['overview', 'architecture', 'business-logic', 'onboarding-path', 'setup', 'testing', 'docker', 'repo-map'].forEach(slug => {
+    ['overview', 'architecture', 'business-logic', 'onboarding-path'].forEach(slug => {
         const el = document.getElementById(`module-${slug}`);
         if (el) el.style.display = 'none';
     });
@@ -22,20 +22,11 @@ function renderizarResultadosDinamicos(pagesArray) {
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = page.markdown ? marked.parse(page.markdown) : '';
 
-        // Extraer título principal (H1) si existe
-        const h1 = tempDiv.querySelector('h1');
-        const h1Title = h1 ? h1.textContent : page.title;
-
         switch (page.slug) {
-            case 'overview':        llenarOverview(tempDiv, h1Title); break;
+            case 'overview':        llenarOverview(tempDiv); break;
             case 'architecture':    llenarArchitecture(tempDiv); break;
             case 'business-logic':  llenarBusinessLogic(tempDiv); break;
             case 'onboarding-path': llenarOnboardingPath(tempDiv); break;
-            // Módulos deterministas (Python backend) asumen page.data
-            case 'setup':           llenarSetup(page.data); break;
-            case 'testing':         llenarTesting(page.data); break;
-            case 'docker':          llenarDocker(page.data); break;
-            case 'repo-map':        llenarRepoMap(page.data); break;
         }
     });
 
@@ -80,68 +71,33 @@ function inyectar(id, html, fallback = false) {
 
 // Llenado por módulo (IA)
 
-function llenarOverview(tempDiv, h1Title) {
-    document.getElementById('res-project-name').textContent = h1Title || '—';
+function llenarOverview(tempDiv) {
     const summary = extraerSeccionHTML(tempDiv, ['summary', 'resumen', 'description']);
-    inyectar('res-project-desc', summary, true);
+    inyectar('res-overview-desc', summary, true);
 
     const techs = extraerSeccionHTML(tempDiv, ['technologies', 'tecnologías', 'stack']);
-    inyectar('res-metrics', techs);
-
-    document.getElementById('res-analysis-date').textContent = new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
-    const statusEl = document.getElementById('res-repo-status');
-    if (statusEl && !statusEl.textContent.trim()) statusEl.textContent = 'Activo';
+    inyectar('res-overview-tech', techs);
 }
 
 function llenarArchitecture(tempDiv) {
-    inyectar('res-arch-style', extraerSeccionHTML(tempDiv, ['general', 'description', 'descripción']));
-    inyectar('res-arch-patterns', extraerSeccionHTML(tempDiv, ['components', 'componentes', 'patterns']));
-    inyectar('res-arch-flow', extraerSeccionHTML(tempDiv, ['flow', 'flujo']), true);
+    const desc = extraerSeccionHTML(tempDiv, ['general', 'description', 'descripción']);
+    inyectar('res-arch-desc', desc, true);
+    
+    const components = extraerSeccionHTML(tempDiv, ['components', 'componentes', 'patterns']);
+    inyectar('res-arch-components', components);
 }
 
 function llenarBusinessLogic(tempDiv) {
-    inyectar('res-biz-core', extraerSeccionHTML(tempDiv, ['flow', 'flujo', 'core']), true);
-    inyectar('res-biz-rules', extraerSeccionHTML(tempDiv, ['decisions', 'decisiones', 'rules']));
-    inyectar('res-biz-entities', ''); // Ocultar
+    const flow = extraerSeccionHTML(tempDiv, ['flow', 'flujo', 'core']);
+    inyectar('res-biz-flow', flow, true);
+    
+    const decisions = extraerSeccionHTML(tempDiv, ['decisions', 'decisiones', 'rules']);
+    inyectar('res-biz-decisions', decisions);
 }
 
 function llenarOnboardingPath(tempDiv) {
-    inyectar('res-path-order', extraerSeccionHTML(tempDiv, ['reading order', 'orden de lectura', 'order']), true);
-    inyectar('res-path-concepts', extraerSeccionHTML(tempDiv, ['key concepts', 'conceptos clave']));
-    inyectar('res-path-checklist', extraerSeccionHTML(tempDiv, ['checklist', 'commit']));
-}
-
-// Llenado Módulos Deterministas (Python Backend JSON)
-
-function llenarSetup(data) {
-    if (!data) return;
-    inyectar('res-setup-prereqs', asListHTML(data.prerequisites));
-    inyectar('res-setup-env', asListHTML(data.env_vars));
-    const cmds = document.getElementById('res-setup-commands');
-    if (data.commands) cmds.innerHTML = `<pre style="margin:0;overflow-x:auto;"><code>${escapeHtml(data.commands)}</code></pre>`;
-    else cmds.style.display = 'none';
-}
-
-function llenarTesting(data) {
-    if (!data) return;
-    inyectar('res-test-happy', asListHTML(data.happy_path));
-    inyectar('res-test-edge', asListHTML(data.edge_cases));
-    inyectar('res-test-security', asListHTML(data.security_cases));
-    inyectar('res-test-privacy', data.privacy_notes);
-}
-
-function llenarDocker(data) {
-    if (!data) return;
-    inyectar('res-docker-infra', data.infra_explanation);
-    if (data.dockerfile) document.getElementById('res-docker-file').innerHTML = `<pre style="margin:0;overflow-x:auto;"><code>${escapeHtml(data.dockerfile)}</code></pre>`;
-    if (data.docker_compose) document.getElementById('res-docker-compose').innerHTML = `<pre style="margin:0;overflow-x:auto;"><code>${escapeHtml(data.docker_compose)}</code></pre>`;
-}
-
-function llenarRepoMap(data) {
-    if (!data) return;
-    inyectar('res-map-entry', asListHTML(data.entry_points));
-    inyectar('res-map-table', buildFileTable(data.file_table));
-    inyectar('res-map-graph', buildDepsTable(data.dependencies));
+    const order = extraerSeccionHTML(tempDiv, ['reading order', 'orden de lectura', 'order']);
+    inyectar('res-path-order', order, true);
 }
 
 // Interfaz y Helpers
