@@ -517,6 +517,89 @@ def orchestrate_pipeline(
     else:
         return f"Chunked output: {', '.join(output_files)}"
 
+# ==========================================
+# FASTAPI SERVER FOR DIRECT FRONTEND ACCESS
+# ==========================================
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from typing import Optional
+
+app = FastAPI(title="Parser Core API - Direct Access")
+
+# CORS Configuration for Rafiki's frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+class PipelineRequest(BaseModel):
+    github_token: str
+    repository: str
+    max_workers: Optional[int] = None
+    max_chunk_size: int = 100000
+    enable_chunking: bool = True
+
+@app.get("/")
+def home():
+    return {"message": "Parser Core API Active - Ready to process repositories"}
+
+@app.post("/process")
+async def process_repository(request: PipelineRequest):
+    """
+    Endpoint directo para que Rafiki envíe datos y ejecute el pipeline completo
+    """
+    try:
+        print(f"\n{'='*70}")
+        print(f"🚀 PARSER CORE: Processing {request.repository}")
+        print(f"{'='*70}\n")
+        
+        # Ejecutar el pipeline completo
+        result = orchestrate_pipeline(
+            repository=request.repository,
+            github_token=request.github_token,
+            output_file="para_uriel.json",
+            max_workers=request.max_workers,
+            max_chunk_size=request.max_chunk_size,
+            enable_chunking=request.enable_chunking
+        )
+        
+        # Verificar si hubo error
+        if isinstance(result, str) and result.startswith("Error"):
+            raise HTTPException(status_code=500, detail=result)
+        
+        # Determinar archivos de salida
+        output_files = []
+        if isinstance(result, list):
+            output_files = result
+        else:
+            output_files = [result]
+        
+        return {
+            "status": "success",
+            "message": "Pipeline executed successfully",
+            "repository": request.repository,
+            "output_files": output_files,
+            "pipeline_stages": {
+                "1_ingestion": "✅ GitHub repository fetched (Andre)",
+                "2_compression": "✅ Code compressed with AST + Regex (Antonio)",
+                "3_ai_analysis": "✅ AI analysis generated (Uriel)",
+                "4_documentation": "✅ Documentation ready (Gio)"
+            }
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Pipeline execution error: {str(e)}"
+        )
+
+# Para ejecutar este servidor directamente:
+# uvicorn parser_core:app --reload --host 0.0.0.0 --port 8001
+
 
 # ==========================================
 # INTEGRATED LOCAL TESTING ZONE
@@ -531,5 +614,5 @@ if __name__ == "__main__":
     
     print("🧪 Running pipeline simulation with concurrent processing...")
     # You can adjust max_workers to control the level of parallelism
-    orchestrate_pipeline("Repo", "Token", max_workers=4)
+    orchestrate_pipeline("repository", "github_token", max_workers=4)
     
