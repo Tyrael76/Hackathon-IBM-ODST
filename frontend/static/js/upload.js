@@ -94,7 +94,7 @@ document.getElementById('odst-form').addEventListener('submit', async function(e
         if (response.ok && data.status === 'success') {
             // extraction success
             step1.className = "step done";
-            step1.innerHTML = `[Done] Repository cloned and processed. ✅`;
+            step1.innerHTML = `[Done] Repository cloned and processed.`;
             
             step2.className = "step done";
             step2.innerHTML = "[Done] Compressed Context JSON generated.";

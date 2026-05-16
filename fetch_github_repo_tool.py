@@ -221,24 +221,6 @@ def create_crewai_tool():
         )
 
 
-    
-    print("\n=== Ejemplo 2: Con filtrado inteligente (sin extensiones) ===")
-    result2 = fetch_github_repo_tool(
-        repository="Ok-Andre/Pagina-web",
-        github_token=token,
-        extensions=None  # Usa filtrado inteligente por MIME type
-    )
-    print(f"Status: {result2['status']}")
-    print(f"Archivos procesados: {result2['file_count']}")
-    
-    print("\n=== Ejemplo 3: Uso con clase ===")
-    tool = GitHubRepoTool()
-    result3 = tool.run(
-        repository="Ok-Andre/Pagina-web",
-        github_token=token,
-        extensions=[".py"]
-    )
-    print(f"Status: {result3['status']}")
-    print(f"Mensaje: {result3['message']}")
+
 
 # Made with Bob
