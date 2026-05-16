@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 import os
 import sys
 import json
@@ -17,6 +17,7 @@ if sys.stderr.encoding != 'utf-8':
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from agents.compression_path.parser_core import orchestrate_pipeline
+from conexiones.conexion_uriel_antonio import generar_analisis
 
 app = FastAPI(title="GitHub Extractor API for Bob")
 
@@ -33,9 +34,9 @@ app.add_middleware(
 class RepoRequest(BaseModel):
     github_token: str
     repository: str
-    branch: str | None = None
-    filters: dict | None = None
-    extensions: List[str] | None = None
+    branch: Optional[str] = None
+    filters: Optional[dict] = None
+    extensions: Optional[List[str]] = None
 
 @app.get("/")
 def home():
@@ -48,6 +49,8 @@ async def extract_repository(request: RepoRequest):
     """
     try:
         output_json = os.path.join(os.path.dirname(os.path.abspath(__file__)), "agents", "compression_path", "para_uriel.json")
+        
+        # Step 1: Extract and compress repository
         orchestrate_pipeline(
             repository=request.repository,
             github_token=request.github_token,
@@ -55,14 +58,8 @@ async def extract_repository(request: RepoRequest):
             max_workers=2 # keep workers reasonable to avoid heavy CPU usage
         )
         
-        # Load the generated documentation
-        frontend_docs_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "conexiones", "frontend_docs.json")
-        
-        if not os.path.exists(frontend_docs_path):
-            raise HTTPException(status_code=500, detail="Documentation generation failed.")
-            
-        with open(frontend_docs_path, 'r', encoding='utf-8') as f:
-            frontend_docs = json.load(f)
+        # Step 2: Analyze with AI and generate documentation
+        frontend_docs = generar_analisis(project_name=request.repository)
             
         return {
             "status": "success",
