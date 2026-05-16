@@ -5,323 +5,37 @@
       "total_chunks": 1,
       "is_fragmented": false
     },
-    "repository": "Ok-Andre/Pagina-web",
-    "generation_timestamp": "2026-05-16T01:05:51.715789Z",
-    "files_in_chunk": 7,
-    "total_files_in_repository": 7,
-    "chunk_size_characters": 3083,
+    "repository": "Tyrael76/Hackathon-IBM-ODST",
+    "generation_timestamp": "2026-05-16T07:43:05.089286Z",
+    "files_in_chunk": 5,
+    "total_files_in_repository": 5,
+    "chunk_size_characters": 415,
     "instructions_for_ai": "Complete repository in single file."
   },
   "files": {
-    "app.py": {
-      "language": "python",
-      "external_imports": [
-        "operaciones",
-        "flask_cors",
-        "flask"
-      ],
-      "structure": {
-        "global_functions": [
-          {
-            "name": "home",
-            "purpose": "Ruta principal (información de la API)"
-          },
-          {
-            "name": "listar_contactos",
-            "purpose": "Lista todos los contactos"
-          },
-          {
-            "name": "buscar_contactos",
-            "purpose": "Busca contactos por término"
-          },
-          {
-            "name": "obtener_contacto",
-            "arguments": [
-              "id_contacto"
-            ],
-            "purpose": "Obtiene un contacto específico"
-          },
-          {
-            "name": "crear_contacto",
-            "purpose": "Crea un nuevo contacto"
-          },
-          {
-            "name": "actualizar_contacto",
-            "arguments": [
-              "id_contacto"
-            ],
-            "purpose": "Actualiza un contacto existente"
-          },
-          {
-            "name": "eliminar_contacto",
-            "arguments": [
-              "id_contacto"
-            ],
-            "purpose": "Elimina un contacto"
-          }
-        ]
-      }
+    "README.md": {
+      "language": "config/text",
+      "preview": "# Hackathon-IBM-ODST... [TRUNCATED]"
     },
-    "config.py": {
+    "agents/api/endpoints.py": {
       "language": "python",
       "external_imports": [],
       "structure": {}
     },
-    "database.py": {
-      "language": "python",
-      "external_imports": [
-        "mysql.connector",
-        "config"
-      ],
-      "structure": {
-        "classes": {
-          "database": {
-            "methods": [
-              {
-                "name": "__init__",
-                "arguments": [
-                  "self"
-                ]
-              },
-              {
-                "name": "connect",
-                "arguments": [
-                  "self"
-                ]
-              },
-              {
-                "name": "disconnect",
-                "arguments": [
-                  "self"
-                ]
-              },
-              {
-                "name": "ejecutar_consulta",
-                "arguments": [
-                  "self",
-                  "consulta",
-                  "params"
-                ]
-              },
-              {
-                "name": "obtener_todo",
-                "arguments": [
-                  "self",
-                  "consulta",
-                  "params"
-                ]
-              },
-              {
-                "name": "obtener_uno",
-                "arguments": [
-                  "self",
-                  "consulta",
-                  "params"
-                ]
-              }
-            ]
-          }
-        }
-      }
-    },
-    "modelos.py": {
+    "frontend/routes/main.py": {
       "language": "python",
       "external_imports": [],
-      "structure": {
-        "classes": {
-          "contacto": {
-            "methods": [
-              {
-                "name": "__init__",
-                "arguments": [
-                  "self",
-                  "id",
-                  "nombre",
-                  "telefono",
-                  "email"
-                ]
-              },
-              {
-                "name": "to_dict",
-                "arguments": [
-                  "self"
-                ]
-              }
-            ]
-          }
-        }
-      }
+      "structure": {}
     },
-    "operaciones.py": {
+    "frontend/app.py": {
       "language": "python",
-      "external_imports": [
-        "database",
-        "modelos"
-      ],
-      "structure": {
-        "classes": {
-          "operaciones": {
-            "methods": [
-              {
-                "name": "__init__",
-                "arguments": [
-                  "self"
-                ]
-              },
-              {
-                "name": "conectar",
-                "arguments": [
-                  "self"
-                ]
-              },
-              {
-                "name": "cerrar",
-                "arguments": [
-                  "self"
-                ]
-              },
-              {
-                "name": "lista_contactos",
-                "arguments": [
-                  "self"
-                ]
-              },
-              {
-                "name": "buscar_contacto",
-                "arguments": [
-                  "self",
-                  "termino"
-                ]
-              },
-              {
-                "name": "agregar_contacto",
-                "arguments": [
-                  "self",
-                  "nombre",
-                  "telefono",
-                  "email"
-                ]
-              },
-              {
-                "name": "editar_contacto",
-                "arguments": [
-                  "self",
-                  "id",
-                  "nombre",
-                  "telefono",
-                  "email"
-                ]
-              },
-              {
-                "name": "eliminar_contacto",
-                "arguments": [
-                  "self",
-                  "id"
-                ]
-              },
-              {
-                "name": "buscar_por_id",
-                "arguments": [
-                  "self",
-                  "id"
-                ]
-              }
-            ]
-          }
-        }
-      }
-    },
-    "requerimientos.txt": {
-      "language": "config/text",
-      "preview": "flask==2.3.0\nflask-cors==4.0.0\nmysql-connector-python==8.1.0... [TRUNCATED]"
-    },
-    "script.js": {
-      "language": "js",
       "external_imports": [],
-      "structure": {
-        "global_functions": [
-          {
-            "name": "cargarContactos",
-            "arguments": [],
-            "type": "function"
-          },
-          {
-            "name": "buscarContactos",
-            "arguments": [
-              "termino"
-            ],
-            "type": "function"
-          },
-          {
-            "name": "crearContacto",
-            "arguments": [
-              "contacto"
-            ],
-            "type": "function"
-          },
-          {
-            "name": "actualizarContacto",
-            "arguments": [
-              "id",
-              "contacto"
-            ],
-            "type": "function"
-          },
-          {
-            "name": "eliminarContacto",
-            "arguments": [
-              "id",
-              "nombreContacto"
-            ],
-            "type": "function"
-          },
-          {
-            "name": "editarContacto",
-            "arguments": [
-              "contacto"
-            ],
-            "type": "function"
-          },
-          {
-            "name": "mostrarContactos",
-            "arguments": [
-              "contactos"
-            ],
-            "type": "function"
-          },
-          {
-            "name": "mostrarLoading",
-            "arguments": [],
-            "type": "function"
-          },
-          {
-            "name": "mostrarError",
-            "arguments": [
-              "mensaje"
-            ],
-            "type": "function"
-          },
-          {
-            "name": "mostrarMensaje",
-            "arguments": [
-              "mensaje"
-            ],
-            "type": "function"
-          },
-          {
-            "name": "resetForm",
-            "arguments": [],
-            "type": "function"
-          },
-          {
-            "name": "escapeHTML",
-            "arguments": [
-              "str"
-            ],
-            "type": "function"
-          }
-        ]
-      }
+      "structure": {}
+    },
+    "frontend/config.py": {
+      "language": "python",
+      "external_imports": [],
+      "structure": {}
     }
   }
 }
