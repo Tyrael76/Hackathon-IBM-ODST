@@ -2,10 +2,17 @@
     --bg-color: #0d1117;
     --text-color: #c9d1d9;
     --ibm-blue: #0f62fe;
-    --border-color: #30363d;
+    --ibm-blue-hover: #0353e9;
+    --border-color: rgba(240, 246, 252, 0.1);
+    
+
+    --glass-bg: rgba(13, 17, 23, 0.6); 
+    --glass-border: rgba(240, 246, 252, 0.1);
+    --glass-blur: blur(12px) saturate(180%);
+    
+    --inner-box-bg: #1c2128; 
     --grey-box-bg: #30363d;
-    --side-panel-bg: #21262d;
-    --code-bg: #161b22;
+    --code-bg: #0d1117;
 }
 
 * { 
@@ -15,15 +22,31 @@
 }
 
 body {
-    background-color: var(--bg-color);
+    background-color: #090c10;
     color: var(--text-color);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
     padding: 2rem;
     display: flex;
     justify-content: center;
     min-height: 100vh;
+    position: relative;
 }
-
+.glow-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none; /* No bloquea clics */
+    z-index: -1;
+    /* Gradiente radial centrado en las coordenadas del mouse */
+    background: radial-gradient(
+        circle 600px at var(--mouse-x, 50vw) var(--mouse-y, 50vh), 
+        rgba(255, 255, 255, 0.06), /* Luz blanca/grisácea muy sutil */
+        transparent 80%
+    );
+    transition: background 0.1s ease;
+}
 .container { 
     max-width: 1050px; 
     width: 100%; 
@@ -51,12 +74,15 @@ h1 {
 }
 
 /* ── Formulario Base ── */
-.top-section, .options-section {
-    background-color: #161b22;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
+.top-section, .options-section, .accordion-content {
+    background-color: rgba(22, 27, 34, 0.65) !important;
+    backdrop-filter: blur(12px) saturate(150%) !important;
+    -webkit-backdrop-filter: blur(12px) saturate(150%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
 }
 
 .input-row {
@@ -75,6 +101,7 @@ h1 {
     font-weight: 600;
     margin-bottom: 8px;
     font-size: 0.95rem;
+    color: #fff;
 }
 
 .input-group input {
@@ -84,8 +111,13 @@ h1 {
     color: var(--text-color);
     border-radius: 6px;
     font-size: 0.9rem;
+    transition: border-color 0.2s;
 }
-
+.input-group input:focus {
+    outline: none;
+    border-color: var(--ibm-blue);
+    box-shadow: 0 0 0 3px rgba(15, 98, 254, 0.2);
+}
 .input-group small {
     color: #8b949e;
     font-size: 0.75rem;
@@ -103,9 +135,9 @@ h1 {
 
 .branch-selector select {
     width: 100%;
-    padding: 10px 35px 10px 12px;
-    background-color: #238636;
-    border: 1px solid #2ea043;
+    padding: 12px 35px 12px 12px;
+    background-color: var(--ibm-blue); /* Verde cambiado a IBM Blue */
+    border: 1px solid var(--ibm-blue-hover);
     color: white;
     border-radius: 6px;
     font-size: 0.9rem;
@@ -114,6 +146,7 @@ h1 {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
+    transition: background-color 0.2s;
 }
 
 .branch-selector .dropdown-arrow {
@@ -127,7 +160,7 @@ h1 {
 }
 
 .branch-selector select:hover {
-    background-color: #2ea043;
+    background-color: var(--ibm-blue-hover);
 }
 
 @media (max-width: 900px) {
@@ -141,6 +174,7 @@ h1 {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
+    padding: 0 5px;
 }
 
 .filters-header h2 {
@@ -151,9 +185,9 @@ h1 {
 
 /* ── Botón Seleccionar Todo ── */
 .secondary-btn {
-    background-color: #161b22; /* Tono oscuro desactivado */
+    background-color: var(--inner-box-bg);
     color: #8b949e;
-    border: 1px solid #30363d;
+    border: 1px solid var(--border-color);
     padding: 10px 18px;
     border-radius: 8px;
     cursor: pointer;
@@ -166,37 +200,45 @@ h1 {
 }
 
 .secondary-btn:hover {
-    background-color: #1c2128;
+    background-color: #21262d;
+    border-color: #8b949e;
+    color: #fff;
 }
 
 .secondary-btn.active {
-    background-color: #238636; /* Tono vivo activado */
-    color: white;
-    border-color: #2ea043;
+    background-color: rgba(15, 98, 254, 0.15);
+    color: #fff;
+    border-color: var(--ibm-blue);
 }
-
+.secondary-btn .check-box {
+    border-color: #8b949e;
+}
 .secondary-btn.active .check-box {
-    background-color: white;
-    border-color: white;
+    background-color: var(--ibm-blue);
+    border-color: var(--ibm-blue);
 }
 
 .secondary-btn.active .check-box::after {
     content: '✓';
-    color: #238636;
+    color: white;
     font-size: 0.85rem;
     font-weight: bold;
 }
 
 /* ── Options Section (Distribución Horizontal) ── */
 .block {
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }
-
+.block:last-child {
+    margin-bottom: 0;
+}
 .block h3 {
     font-size: 1.1rem;
     color: #fff;
     margin-bottom: 15px;
     font-weight: 600;
+    border-left: 3px solid var(--ibm-blue);
+    padding-left: 10px;
 }
 
 .btn-row {
@@ -225,22 +267,25 @@ h1 {
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    background-color: #161b22; 
+    background-color: var(--inner-box-bg);
     color: #8b949e;
-    border: 1px solid #30363d;
-    padding: 10px 14px;
+    border: 1px solid var(--border-color);
+    padding: 12px 18px;
     border-radius: 8px;
     transition: all 0.2s;
 }
-
 .toggle-btn:hover .btn-content {
-    background-color: #1c2128;
+    background-color: #21262d;
+    border-color: #8b949e;
+    color: #fff;
 }
 
+/* Estado Checked: Verde cambiado a IBM Blue */
 .toggle-btn input[type="checkbox"]:checked + .btn-content {
-    background-color: #238636; /* Tono vivo activado */
-    border-color: #2ea043;
+    background-color: rgba(15, 98, 254, 0.15);
+    border-color: var(--ibm-blue);
     color: white;
+    box-shadow: 0 0 10px rgba(15, 98, 254, 0.2);
 }
 
 .btn-content .text {
@@ -249,10 +294,10 @@ h1 {
 }
 
 .check-box {
-    width: 18px;
-    height: 18px;
-    border: 2px solid currentColor;
-    border-radius: 4px;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #8b949e;
+    border-radius: 5px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -261,195 +306,257 @@ h1 {
 }
 
 .toggle-btn input[type="checkbox"]:checked + .btn-content .check-box {
-    background-color: white;
-    border-color: white;
+    background-color: var(--ibm-blue);
+    border-color: var(--ibm-blue);
 }
 
 .toggle-btn input[type="checkbox"]:checked + .btn-content .check-box::after {
     content: '✓';
-    color: #238636;
-    font-size: 0.85rem;
+    color: white;
+    font-size: 0.9rem;
     font-weight: bold;
+}
+
+/* Placeholders invisibles */
+.toggle-btn.placeholder {
+    visibility: hidden;
+    pointer-events: none;
 }
 
 /* ── Action Section ── */
 .action-section {
     text-align: center;
-    margin-top: 20px;
+    margin-top: 30px;
 }
 
 #analyze-btn {
-    background-color: #238636;
+    background-color: var(--ibm-blue); /* Asegurado IBM Blue */
     color: white;
-    border: 1px solid #2ea043;
-    padding: 12px 32px;
+    border: none;
+    padding: 14px 40px;
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 1.1rem;
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    transition: all 0.2s;
+    gap: 12px;
+    transition: background-color 0.2s, transform 0.1s;
+    box-shadow: 0 4px 14px rgba(15, 98, 254, 0.4);
 }
 
 #analyze-btn:hover {
-    background-color: #2ea043;
+    background-color: var(--ibm-blue-hover);
+}
+
+#analyze-btn:active {
+    transform: translateY(1px);
 }
 
 #analyze-btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+    background-color: #484f58;
 }
 
-/* ── Status Console (Centrado y Pequeño) ── */
+/* ── Status Console (Centrado, Pequeño, Cristal) ── */
 .status-console {
-    background-color: #000;
-    border: 1px solid var(--border-color);
+    background-color: rgba(13, 17, 23, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background-color: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
     padding: 20px;
     border-radius: 8px;
-    margin: 25px auto 0; /* Centrado */
+    margin: 25px auto 0;
     font-family: 'Courier New', Courier, monospace;
     font-size: 0.85rem;
-    max-width: 480px; /* Tamaño reducido */
+    max-width: 480px;
     text-align: left;
     display: flex;
     flex-direction: column;
     gap: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 .step.waiting { color: #8b949e; }
-.step.active { color: #f1e05a; }
-.step.done { color: #4caf50; }
+.step.active { color: #f1e05a; } /* Amarillo IBM */
+.step.done { color: #4caf50; } /* Verde éxito mantenido para semántica */
 
-/* ── Results header ── */
-.results-header {
-    font-size: 1rem; color: #8b949e;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 10px; margin-bottom: 20px;
+/* ── Results Container & Accordions ── */
+#results-container {
+    margin-bottom: 50px;
 }
 
-/* ── Accordion ── */
-.accordion-item { margin-bottom: 12px; }
+.accordion-item { 
+    margin-bottom: 15px; 
+}
 
 .accordion-header {
-    width: 100%; background: transparent;
-    color: #ffffff; border: none;
-    padding: 14px 5px; font-size: 1.2rem;
-    font-weight: bold; text-align: left;
-    cursor: pointer; display: flex;
-    align-items: center; transition: color 0.2s;
+    width: 100%; 
+    background: transparent;
+    color: #ffffff; 
+    border: none;
+    padding: 15px 5px; 
+    font-size: 1.25rem;
+    font-weight: bold; 
+    text-align: left;
+    cursor: pointer; 
+    display: flex;
+    align-items: center; 
+    transition: color 0.2s;
 }
 
-.accordion-header:hover { color: #58a6ff; }
+.accordion-header:hover { color: var(--ibm-blue); }
 
 .accordion-header::before {
-    content: '▼'; font-size: 0.85rem;
-    margin-right: 14px; transition: transform 0.25s;
-    color: #58a6ff;
+    content: '▼'; 
+    font-size: 0.9rem;
+    margin-right: 15px; 
+    transition: transform 0.25s;
+    color: var(--ibm-blue);
 }
 
 .accordion-header.collapsed::before { transform: rotate(-90deg); }
 
+/* Contenido del acordeón con efecto Cristal */
 .accordion-content {
-    background-color: #161b22;
-    border: 1px solid var(--border-color);
-    border-radius: 8px; padding: 20px;
+    background-color: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px; 
+    padding: 25px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
 }
 
 .accordion-content.hidden { display: none; }
 
-/* ── Layouts ── */
+/* ── Layouts dentro de resultados ── */
 .layout-2-col { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
 .layout-50-50 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 
-@media (max-width: 700px) {
+@media (max-width: 750px) {
     .layout-2-col, .layout-50-50 { grid-template-columns: 1fr; }
 }
 
-/* ── Grey box ── */
+/* ── Cajas Grises (Contenido Oopaco sobre Cristal) ── */
 .grey-box {
-    background-color: var(--grey-box-bg);
-    border: 1px solid #484f58;
-    border-radius: 6px; padding: 14px 16px;
+    background-color: var(--inner-box-bg); /* Ligeramente más oscuro para contraste */
+    border: 1px solid var(--border-color);
+    border-radius: 8px; 
+    padding: 16px;
     color: var(--text-color);
-    font-size: 0.9rem; line-height: 1.65;
+    font-size: 0.95rem; 
+    line-height: 1.6;
 }
+
+.grey-box h1, .grey-box h2, .grey-box h3 { color: #fff; margin-top: 1rem; margin-bottom: 0.5rem;}
+.grey-box h1:first-child, .grey-box h2:first-child { margin-top: 0; }
 
 .grey-box ul, .grey-box ol {
-    margin: 0; padding-left: 20px;
+    margin: 0; 
+    padding-left: 20px;
 }
 
-.grey-box li { margin-bottom: 7px; }
+.grey-box li { margin-bottom: 8px; }
 .grey-box li:last-child { margin-bottom: 0; }
 
 /* ── Code box ── */
 .code-box {
-    background-color: #0d1117;
-    border-color: #30363d;
+    background-color: var(--code-bg);
+    border-color: var(--border-color);
     font-family: 'Courier New', Courier, monospace;
+    overflow-x: auto;
 }
 
-.code-box pre { font-size: 0.85rem; line-height: 1.6; color: #e6edf3; }
-.code-box code { color: #e6edf3; }
+.code-box pre { font-size: 0.85rem; line-height: 1.6; color: #e6edf3; padding: 10px;}
+.code-box code { color: #e6edf3; background: transparent; padding: 0;}
 
 /* ── Side panel ── */
 .side-panel {
-    background-color: var(--side-panel-bg);
-    border-radius: 6px; padding: 15px 18px;
+    background-color: rgba(240, 246, 252, 0.05); /* Muy sutil sobre cristal */
+    border-radius: 8px; 
+    padding: 18px;
     border: 1px solid var(--border-color);
     font-size: 0.9rem;
 }
 
 .side-panel p { margin: 4px 0 14px; }
 
-/* ── Language bar ── */
+/* ── Language bar (Verde cambiado a IBM Blue) ── */
 .lang-bar {
-    display: flex; height: 8px;
-    border-radius: 4px; overflow: hidden;
-    margin: 8px 0;
+    display: flex; height: 10px;
+    border-radius: 5px; overflow: hidden;
+    margin: 10px 0;
+    background-color: #484f58;
 }
 
-.lang-html  { background-color: #e34c26; width: 47%; }
-.lang-python{ background-color: #3572A5; width: 33.7%; }
-.lang-js    { background-color: #f1e05a; width: 19.3%; }
-.lang-legend{ display: flex; gap: 12px; font-size: 0.75rem; flex-wrap: wrap; }
-.lang-legend span { display: inline-flex; align-items: center; gap: 4px; }
+/* Usando IBM Blue para la barra principal */
+.lang-main { background-color: var(--ibm-blue); width: 70%; } /* Ejemplo */
+.lang-sec  { background-color: #f1e05a; width: 20%; } /* Ejemplo JS */
+.lang-other{ background-color: #e34c26; width: 10%; } /* Ejemplo HTML */
+
+.lang-legend{ display: flex; gap: 12px; font-size: 0.75rem; flex-wrap: wrap; margin-top: 5px;}
+.lang-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block;}
 
 /* ── Section label ── */
 .section-label {
-    margin: 0 0 6px;
-    color: #8b949e; font-size: 0.85rem;
+    margin: 0 0 8px;
+    color: #fff; 
+    font-size: 0.9rem;
+    font-weight: 600;
 }
 
-/* ── Table inside grey-box ── */
-.data-table { width: 100%; border-collapse: collapse; }
+/* ── Table inside grey-box (Verde cambiado a IBM Blue) ── */
+.data-table { width: 100%; border-collapse: collapse; margin: 10px 0;}
 
 .data-table th {
-    padding: 9px 14px; text-align: left;
-    font-size: 0.78rem; color: #8b949e;
-    font-weight: 600; border-bottom: 1px solid #484f58;
-    background: #1e2430;
+    padding: 12px; text-align: left;
+    font-size: 0.8rem; color: #fff;
+    font-weight: 600; border-bottom: 2px solid var(--border-color);
+    background-color: rgba(240, 246, 252, 0.05);
 }
 
-.data-table td { padding: 9px 14px; font-size: 0.88rem; }
-.data-table tr:nth-child(even) td { background: #292f38; }
+.data-table td { padding: 12px; font-size: 0.9rem; border-bottom: 1px solid var(--border-color);}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:nth-child(even) td { background-color: rgba(240, 246, 252, 0.02); }
+.data-table td family:monospace { color: #79c0ff; }
 
-/* ── Impact badges ── */
-.badge-alta  { background:#1b4b27;color:#4caf50;border:1px solid #2e7d32; padding:2px 10px;border-radius:20px;font-size:0.75rem;font-weight:600; }
-.badge-media { background:#3d2e00;color:#f0ad4e;border:1px solid #7a5c00; padding:2px 10px;border-radius:20px;font-size:0.75rem;font-weight:600; }
-.badge-baja  { background:#1a1f2e;color:#8b949e;border:1px solid #30363d; padding:2px 10px;border-radius:20px;font-size:0.75rem;font-weight:600; }
+/* ── Impact badges (Verde cambiado a IBM Blue) ── */
+.badge-alta  { background:rgba(15, 98, 254, 0.2);color:#79c0ff;border:1px solid var(--ibm-blue); padding:3px 12px;border-radius:20px;font-size:0.75rem;font-weight:600; }
+.badge-media { background:#3d2e00;color:#f0ad4e;border:1px solid #7a5c00; padding:3px 12px;border-radius:20px;font-size:0.75rem;font-weight:600; }
+.badge-baja  { background:#1a1f2e;color:#8b949e;border:1px solid #30363d; padding:3px 12px;border-radius:20px;font-size:0.75rem;font-weight:600; }
 
-/* ── Checklist ── */
-.checklist { list-style: none; padding: 0; }
-.checklist li { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; font-size: 0.9rem; }
+/* ── Checklist (Icono cambiado a IBM Blue) ── */
+.checklist { list-style: none; padding: 0; margin: 10px 0;}
+.checklist li { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; font-size: 0.95rem; color: var(--text-color);}
 .checklist li::before {
-    content: '☐'; color: #58a6ff;
-    font-size: 1rem; flex-shrink: 0; margin-top: 1px;
+    content: '✓'; color: var(--ibm-blue); /* Cambiado de azul claro a IBM Blue */
+    font-size: 1.1rem; flex-shrink: 0; margin-top: -2px; font-weight: bold;
 }
 
-.mb { margin-bottom: 14px; }
-.toggle-btn.placeholder {
-    visibility: hidden;
-    pointer-events: none;
+/* ── Spacers & Utils ── */
+.mb { margin-bottom: 15px; }
+.hidden { display: none !important; }
+
+#bg-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1; /* Se mantiene al fondo */
+    pointer-events: none; /* Permite hacer clic en los elementos de la UI */
+    background-color: #0d1117;
+}
+
+/* Asegura que los contenedores cristal tengan suficiente contraste sobre el fondo animado */
+.top-section, .options-section, .accordion-content {
+    background-color: rgba(13, 17, 23, 0.75) !important;
+    backdrop-filter: blur(16px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
 }
