@@ -134,7 +134,7 @@ BACKEND_URL=https://github-extractor-backend.onrender.com
 FRONTEND_URL=https://tu-frontend.vercel.app
 
 # Seguridad (OBLIGATORIO)
-SESSION_SECRET_KEY=genera_un_token_aleatorio_de_minimo_32_caracteres_aqui
+SESSION_SECRET_KEY=yIputfdBcD27uokSwwxYacbeHa6RwSO3xJiUKUOC4Jw
 ENVIRONMENT=production
 ```
 
