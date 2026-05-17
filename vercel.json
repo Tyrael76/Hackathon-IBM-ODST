@@ -1,0 +1,23 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "frontend/templetes/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/",
+      "dest": "/frontend/templetes/oauth_index.html"
+    },
+    {
+      "src": "/procesando",
+      "dest": "/frontend/templetes/procesando.html"
+    },
+    {
+      "src": "/results",
+      "dest": "/frontend/templetes/results.html"
+    }
+  ]
+}
