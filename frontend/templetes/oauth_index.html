@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Repository Extractor - OAuth 2.0</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .security-badge {
+            background: #48bb78;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #2d3748;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .extensions-input {
+            font-family: 'Courier New', monospace;
+        }
+
+        .help-text {
+            color: #718096;
+            font-size: 12px;
+            margin-top: 6px;
+        }
+
+        .github-btn {
+            width: 100%;
+            background: #24292e;
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: background 0.3s, transform 0.1s;
+        }
+
+        .github-btn:hover {
+            background: #1a1e22;
+            transform: translateY(-2px);
+        }
+
+        .github-btn:active {
+            transform: translateY(0);
+        }
+
+        .github-btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .github-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #e2e8f0;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        .info-box {
+            background: #ebf8ff;
+            border-left: 4px solid #4299e1;
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #2c5282;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 GitHub Repository Extractor</h1>
+            <p>Secure OAuth 2.0 Authentication</p>
+            <span class="security-badge">🛡️ Zero Token Exposure</span>
+        </div>
+
+        <div id="errorMessage" class="error-message"></div>
+
+        <form id="oauthForm">
+            <div class="form-group">
+                <label for="repository">Repository (owner/repo)</label>
+                <input 
+                    type="text" 
+                    id="repository" 
+                    name="repository" 
+                    placeholder="octocat/Hello-World"
+                    required
+                    pattern="^[a-zA-Z0-9_-]+/[a-zA-Z0-9_.-]+$"
+                >
+                <div class="help-text">Example: facebook/react or microsoft/vscode</div>
+            </div>
+
+            <div class="form-group">
+                <label for="extensions">File Extensions (optional)</label>
+                <input 
+                    type="text" 
+                    id="extensions" 
+                    name="extensions" 
+                    placeholder=".py, .js, .ts, .java"
+                    class="extensions-input"
+                >
+                <div class="help-text">Leave empty to extract all text files intelligently</div>
+            </div>
+
+            <button type="submit" id="githubBtn" class="github-btn">
+                <svg class="github-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+                Connect with GitHub
+            </button>
+        </form>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Redirecting to GitHub...</p>
+        </div>
+
+        <div class="info-box">
+            <strong>🔒 Security Features:</strong>
+            • Your token never touches the browser<br>
+            • Server-to-server OAuth exchange<br>
+            • Ephemeral tokens (no storage)<br>
+            • CSRF protection with state validation
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:8000';
+        
+        const form = document.getElementById('oauthForm');
+        const githubBtn = document.getElementById('githubBtn');
+        const loading = document.getElementById('loading');
+        const errorMessage = document.getElementById('errorMessage');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Clear previous errors
+            errorMessage.classList.remove('active');
+            errorMessage.textContent = '';
+            
+            // Get form values
+            const repository = document.getElementById('repository').value.trim();
+            const extensionsInput = document.getElementById('extensions').value.trim();
+            
+            // Parse extensions
+            const extensions = extensionsInput 
+                ? extensionsInput.split(',').map(ext => ext.trim()).filter(ext => ext)
+                : null;
+            
+            // Validate repository format
+            const repoPattern = /^[a-zA-Z0-9_-]+\/[a-zA-Z0-9_.-]+$/;
+            if (!repoPattern.test(repository)) {
+                showError('Invalid repository format. Use: owner/repo');
+                return;
+            }
+            
+            // Disable button and show loading
+            githubBtn.disabled = true;
+            loading.classList.add('active');
+            
+            try {
+                // Step 1: Initiate OAuth flow
+                const response = await fetch(`${BACKEND_URL}/auth/github/initiate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        repository: repository,
+                        extensions: extensions
+                    })
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Failed to initiate OAuth');
+                }
+                
+                const data = await response.json();
+                
+                // Step 2: Redirect to GitHub authorization
+                // The backend will handle the callback and token exchange
+                window.location.href = data.authorization_url;
+                
+            } catch (error) {
+                console.error('OAuth initiation failed:', error);
+                showError(error.message || 'Failed to connect to GitHub. Please try again.');
+                githubBtn.disabled = false;
+                loading.classList.remove('active');
+            }
+        });
+        
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('active');
+        }
+        
+        // Check OAuth configuration on page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const response = await fetch(`${BACKEND_URL}/auth/status`);
+                const status = await response.json();
+                
+                if (!status.oauth_configured) {
+                    showError('⚠️ OAuth not configured. Please set GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET in .env file');
+                    githubBtn.disabled = true;
+                }
+            } catch (error) {
+                console.error('Failed to check OAuth status:', error);
+                showError('⚠️ Cannot connect to backend. Make sure the server is running.');
+                githubBtn.disabled = true;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Procesando Repositorio - GitHub Extractor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .repo-name {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 18px;
+            margin-top: 10px;
+            word-break: break-all;
+        }
+
+        .status-container {
+            margin: 30px 0;
+        }
+
+        .spinner {
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status-text {
+            color: #4a5568;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .status-detail {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            animation: progress 2s ease-in-out infinite;
+        }
+
+        @keyframes progress {
+            0% { width: 0%; }
+            50% { width: 70%; }
+            100% { width: 100%; }
+        }
+
+        .error-container {
+            display: none;
+            background: #fed7d7;
+            color: #c53030;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .error-container.active {
+            display: block;
+        }
+
+        .success-container {
+            display: none;
+            background: #c6f6d5;
+            color: #22543d;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .success-container.active {
+            display: block;
+        }
+
+        .results-preview {
+            display: none;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .results-preview.active {
+            display: block;
+        }
+
+        .file-item {
+            background: #f7fafc;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #2d3748;
+        }
+
+        .retry-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background 0.3s;
+        }
+
+        .retry-btn:hover {
+            background: #5568d3;
+        }
+
+        .info-box {
+            background: #ebf8ff;
+            border-left: 4px solid #4299e1;
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #2c5282;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔄 Procesando Repositorio</h1>
+            <div class="repo-name" id="repoName">Cargando...</div>
+        </div>
+
+        <div class="status-container" id="statusContainer">
+            <div class="spinner" id="spinner"></div>
+            <div class="status-text" id="statusText">Extrayendo archivos del repositorio...</div>
+            <div class="status-detail" id="statusDetail">Esto puede tomar algunos segundos</div>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+        </div>
+
+        <div class="error-container" id="errorContainer">
+            <h3>❌ Error en la Extracción</h3>
+            <p id="errorMessage"></p>
+            <button class="retry-btn" onclick="window.location.href='/'">Intentar de Nuevo</button>
+        </div>
+
+        <div class="success-container" id="successContainer">
+            <h3>✅ Extracción Completada</h3>
+            <p id="successMessage"></p>
+        </div>
+
+        <div class="results-preview" id="resultsPreview">
+            <h4>Archivos Extraídos:</h4>
+            <div id="filesList"></div>
+        </div>
+
+        <div class="info-box">
+            <strong>🔍 Proceso en Segundo Plano:</strong><br>
+            La extracción se ejecuta de forma asíncrona para evitar timeouts.<br>
+            Esta página se actualiza automáticamente cada 3 segundos.
+        </div>
+    </div>
+
+    <script>
+        // ============================================================================
+        // POLLING SCRIPT FOR BACKGROUND TASK STATUS
+        // ============================================================================
+        // USAGE: This script polls the backend every 3 seconds to check extraction status
+        // BACKEND ENDPOINT: GET /api/status/{repo_name}
+        // ============================================================================
+
+        const BACKEND_URL = 'http://localhost:8000';
+        const POLLING_INTERVAL = 3000; // 3 seconds
+        let pollingTimer = null;
+        let repoName = null;
+
+        // Extract repository name from URL query parameter
+        function getRepoFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('repo');
+        }
+
+        // Update UI with current status
+        function updateUI(status, data) {
+            const spinner = document.getElementById('spinner');
+            const statusText = document.getElementById('statusText');
+            const statusDetail = document.getElementById('statusDetail');
+            const errorContainer = document.getElementById('errorContainer');
+            const successContainer = document.getElementById('successContainer');
+            const resultsPreview = document.getElementById('resultsPreview');
+
+            switch(status) {
+                case 'processing':
+                    spinner.style.display = 'block';
+                    statusText.textContent = 'Extrayendo archivos del repositorio...';
+                    statusDetail.textContent = `Iniciado: ${new Date(data.started_at).toLocaleTimeString()}`;
+                    break;
+
+                case 'completed':
+                    // Stop polling
+                    clearInterval(pollingTimer);
+                    
+                    // Hide spinner
+                    spinner.style.display = 'none';
+                    
+                    // Show success message
+                    successContainer.classList.add('active');
+                    document.getElementById('successMessage').textContent = 
+                        `Se extrajeron ${data.file_count} archivos exitosamente`;
+                    
+                    // Show results preview
+                    resultsPreview.classList.add('active');
+                    const filesList = document.getElementById('filesList');
+                    filesList.innerHTML = data.data.slice(0, 10).map(file => 
+                        `<div class="file-item">📄 ${file.path} (${(file.size / 1024).toFixed(2)} KB)</div>`
+                    ).join('');
+                    
+                    if (data.file_count > 10) {
+                        filesList.innerHTML += `<div class="file-item">... y ${data.file_count - 10} archivos más</div>`;
+                    }
+                    
+                    // DEVSECOPS: Load IBM watsonx Web Chat dynamically with secure credentials
+                    loadWatsonxChat(data.data);
+                    break;
+
+                case 'error':
+                    // Stop polling
+                    clearInterval(pollingTimer);
+                    
+                    // Hide spinner
+                    spinner.style.display = 'none';
+                    
+                    // Show error
+                    errorContainer.classList.add('active');
+                    document.getElementById('errorMessage').textContent = data.error || 'Error desconocido';
+                    break;
+            }
+        }
+
+        // Poll backend for status
+        async function checkStatus() {
+            if (!repoName) {
+                console.error('No repository name found in URL');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/status/${encodeURIComponent(repoName)}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log('Status update:', data);
+                
+                updateUI(data.status, data);
+
+            } catch (error) {
+                console.error('Polling error:', error);
+                
+                // Show error after multiple failed attempts
+                clearInterval(pollingTimer);
+                document.getElementById('spinner').style.display = 'none';
+                document.getElementById('errorContainer').classList.add('active');
+                document.getElementById('errorMessage').textContent = 
+                    `Error de conexión: ${error.message}. Verifica que el backend esté corriendo.`;
+            }
+        }
+
+        // Initialize polling on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            // Get repository name from URL
+            repoName = getRepoFromURL();
+            
+            if (!repoName) {
+                document.getElementById('spinner').style.display = 'none';
+                document.getElementById('errorContainer').classList.add('active');
+                document.getElementById('errorMessage').textContent = 
+                    'No se especificó un repositorio. Redirigiendo...';
+                setTimeout(() => window.location.href = '/', 2000);
+                return;
+            }
+
+            // Display repository name
+            document.getElementById('repoName').textContent = repoName;
+
+            // Start polling immediately
+            checkStatus();
+
+            // Continue polling every 3 seconds
+            pollingTimer = setInterval(checkStatus, POLLING_INTERVAL);
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (pollingTimer) {
+                clearInterval(pollingTimer);
+            }
+        });
+
+        // ============================================================================
+        // IBM WATSONX WEB CHAT INTEGRATION (DEVSECOPS SECURE)
+        // ============================================================================
+        // SECURITY: Credentials fetched dynamically from backend, NEVER hardcoded
+        // ============================================================================
+
+        async function loadWatsonxChat(extractedData) {
+            try {
+                console.log('[WATSONX] Fetching chat configuration from backend...');
+                
+                // Step 1: Fetch credentials securely from backend
+                const configResponse = await fetch(`${BACKEND_URL}/api/chat-config`);
+                
+                if (!configResponse.ok) {
+                    throw new Error(`Failed to fetch chat config: ${configResponse.status}`);
+                }
+                
+                const chatConfig = await configResponse.json();
+                console.log('[WATSONX] Configuration received:', chatConfig.service);
+                
+                // Step 2: Load IBM watsonx Web Chat SDK dynamically
+                window.watsonAssistantChatOptions = {
+                    integrationID: chatConfig.integrationID,
+                    region: chatConfig.region,
+                    serviceInstanceID: chatConfig.integrationID,
+                    
+                    // Inject extracted code data into chat context
+                    onLoad: function(instance) {
+                        console.log('[WATSONX] Chat loaded successfully');
+                        
+                        // Prepare extracted code summary for the agent
+                        const codigoExtraido = {
+                            repositorio: repoName,
+                            total_archivos: extractedData.length,
+                            archivos: extractedData.map(file => ({
+                                ruta: file.path,
+                                extension: file.extension,
+                                tamaño_kb: (file.size / 1024).toFixed(2),
+                                contenido: file.content || file.ast_summary || 'N/A'
+                            }))
+                        };
+                        
+                        // Inject into session context (silent, no user message)
+                        instance.updateSessionVariables({
+                            codigo_extraido: JSON.stringify(codigoExtraido, null, 2)
+                        });
+                        
+                        console.log('[WATSONX] Context injected:', codigoExtraido.total_archivos, 'files');
+                        
+                        // Auto-open chat with welcome message
+                        instance.openWindow();
+                        instance.send({
+                            input: {
+                                text: `Hola, he extraído ${codigoExtraido.total_archivos} archivos del repositorio ${repoName}. ¿En qué puedo ayudarte?`
+                            },
+                            silent: false
+                        });
+                    }
+                };
+
+                // Step 3: Inject IBM watsonx script tag
+                const script = document.createElement('script');
+                script.src = `https://web-chat.global.assistant.watson.appdomain.cloud/versions/${(window.watsonAssistantChatOptions.clientVersion || 'latest')}/WatsonAssistantChatEntry.js`;
+                script.async = true;
+                script.onload = () => {
+                    console.log('[WATSONX] SDK loaded successfully');
+                };
+                script.onerror = () => {
+                    console.error('[WATSONX] Failed to load SDK');
+                };
+                document.head.appendChild(script);
+                
+            } catch (error) {
+                console.error('[WATSONX] Chat initialization failed:', error);
+                // Fallback: Show error but don't break the page
+                alert('No se pudo cargar el chat de IBM watsonx. Los datos extraídos están disponibles en la consola.');
+                console.log('Extracted data:', extractedData);
+            }
+        }
+    </script>
+</body>
+</html>
