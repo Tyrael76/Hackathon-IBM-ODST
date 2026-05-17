@@ -134,7 +134,7 @@ class GitHubRepoTool:
             print(f"✅ [FETCH_TOOL] gitAPI returned {len(files) if files else 0} files")
             
             if not files:
-                error_msg = "No se encontraron archivos válidos en el repositorio. Posibles causas: repositorio vacío, todos los archivos son binarios, o el filtro de extensiones es muy restrictivo."
+                error_msg = "No valid files were found in the repository. Possible causes: empty repository, all files are binaries, or the extension filter is too restrictive."
                 print(f"⚠️ [FETCH_TOOL] {error_msg}")
                 return {
                     "status": "error",
@@ -156,7 +156,7 @@ class GitHubRepoTool:
                 "repo": repository,
                 "file_count": len(files),
                 "files": files,
-                "message": f"Extracción exitosa: {len(files)} archivos procesados"
+                "message": f"Extraction successful: {len(files)} files processed"
             }
             
         except Exception as e:
@@ -174,7 +174,7 @@ class GitHubRepoTool:
             
             return {
                 "status": "error",
-                "message": f"Error al extraer repositorio: {str(e)}",
+                "message": f"Error extracting repository: {str(e)}",
                 "repo": repository,
                 "file_count": 0,
                 "files": [],
@@ -189,18 +189,18 @@ def fetch_github_repo_tool(
     extensions: Optional[List[str]] = None
 ) -> Dict[str, Any]:
     """
-    Función wrapper para usar directamente con frameworks de agentes.
+    Wrapper function to use directly with agent frameworks.
     
-    Esta es la función principal que debes usar para integrar con LangChain,
-    CrewAI o cualquier otro framework de agentes.
+    This is the main function to integrate with LangChain,
+    CrewAI or any other agent framework.
     
     Args:
-        repository: Nombre completo del repositorio (usuario/repo)
-        github_token: Token de autenticación de GitHub
-        extensions: Lista opcional de extensiones a filtrar
+        repository: Full repository name (user/repo)
+        github_token: GitHub authentication token
+        extensions: Optional list of extensions to filter
         
     Returns:
-        dict: Resultado de la extracción con archivos y metadatos
+        dict: Extraction result with files and metadata
         
     Example:
         >>> result = fetch_github_repo_tool(
@@ -209,7 +209,7 @@ def fetch_github_repo_tool(
         ...     extensions=[".html", ".css", ".js"]
         ... )
         >>> print(f"Status: {result['status']}")
-        >>> print(f"Archivos: {result['file_count']}")
+        >>> print(f"Files: {result['file_count']}")
     """
     tool = GitHubRepoTool()
     return tool.run(repository, github_token, extensions)
@@ -218,23 +218,23 @@ def fetch_github_repo_tool(
 # Ejemplo de integración con LangChain (requiere langchain instalado)
 def create_langchain_tool():
     """
-    Crea una herramienta compatible con LangChain.
+    Creates a tool compatible with LangChain.
     
-    Requiere: pip install langchain
+    Requires: pip install langchain
     
     Returns:
-        StructuredTool: Herramienta lista para usar con agentes de LangChain
+        StructuredTool: Ready to use tool with LangChain agents
     """
     try:
         from langchain.tools import StructuredTool
         from pydantic import BaseModel, Field
         
         class GitHubRepoInput(BaseModel):
-            repository: str = Field(description="Nombre del repositorio (usuario/repo)")
-            github_token: str = Field(description="Token de GitHub")
+            repository: str = Field(description="Repository name (user/repo)")
+            github_token: str = Field(description="GitHub token")
             extensions: Optional[List[str]] = Field(
                 default=None,
-                description="Lista de extensiones (opcional)"
+                description="List of extensions (optional)"
             )
         
         return StructuredTool.from_function(
@@ -245,20 +245,20 @@ def create_langchain_tool():
         )
     except ImportError:
         raise ImportError(
-            "LangChain no está instalado. "
-            "Instala con: pip install langchain"
+            "LangChain is not installed. "
+            "Install with: pip install langchain"
         )
 
 
 # Ejemplo de integración con CrewAI (requiere crewai instalado)
 def create_crewai_tool():
     """
-    Crea una herramienta compatible con CrewAI.
+    Creates a tool compatible with CrewAI.
     
-    Requiere: pip install crewai crewai-tools
+    Requires: pip install crewai crewai-tools
     
     Returns:
-        Tool: Herramienta lista para usar con agentes de CrewAI
+        Tool: Ready to use tool with CrewAI agents
     """
     try:
         from crewai_tools import tool
@@ -269,7 +269,7 @@ def create_crewai_tool():
             github_token: str,
             extensions: list = None
         ) -> dict:
-            """Extrae código fuente de un repositorio de GitHub."""
+            """Extracts source code from a GitHub repository."""
             return fetch_github_repo_tool(repository, github_token, extensions)
         
         return github_repo_tool

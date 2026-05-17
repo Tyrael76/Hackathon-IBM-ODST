@@ -1,6 +1,4 @@
-
-
-
+# Archivos generados y exportaciones
 generated_exports/
 *.zip
 
@@ -18,7 +16,32 @@ __pycache__/
 *.pyc
 cache_*.json
 repo_data.json
+para_uriel.json
+paraGio.json
+frontend_docs.json
 
-# Archivos de sistema Mac
+# Archivos de prueba
+test_*.py
+*_test.py
+
+# Archivos de sistema
 .DS_Store
+Thumbs.db
 
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
+logs/
+
+# Made with Bob

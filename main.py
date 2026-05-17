@@ -8,6 +8,7 @@ import os
 import sys
 import json
 import io
+from dotenv import load_dotenv
 
 # Fix for Windows console emoji printing (UnicodeEncodeError)
 if sys.stdout.encoding != 'utf-8':
@@ -17,6 +18,10 @@ if sys.stderr.encoding != 'utf-8':
 
 # Add root directory to sys.path to ensure we can import agents
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+# Load environment variables from .env
+load_dotenv()
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
 
 from agents.compression_path.parser_core import orchestrate_pipeline
 from agents.crew_agents import run_crew_analysis, explain_file_direct, generate_full_documentation
@@ -36,9 +41,8 @@ app.add_middleware(
 FRONTEND_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend")
 app.mount("/static", StaticFiles(directory=os.path.join(FRONTEND_DIR, "static")), name="static")
 
-# Define what data we expect to receive from frontend
+# Define what data we expect to receive from the frontend
 class RepoRequest(BaseModel):
-    github_token: str
     repository: str
     branch: str | None = None
     filters: dict | None = None
@@ -55,7 +59,7 @@ def home():
 @app.post("/extract")
 async def extract_repository(request: RepoRequest):
     """
-    Receives token, repo and extensions from frontend.
+    Receives repo and extensions from frontend. Token is loaded server-side.
     """
     print(f"\n{'='*70}")
     print(f"🌐 [MAIN API] New extraction request received")
@@ -68,10 +72,10 @@ async def extract_repository(request: RepoRequest):
     
     try:
         # Validate inputs
-        if not request.github_token:
-            error_msg = "GitHub token is required"
+        if not GITHUB_TOKEN:
+            error_msg = "GitHub token is not configured on the server. Set GITHUB_TOKEN in .env"
             print(f"❌ [MAIN API] {error_msg}")
-            raise HTTPException(status_code=400, detail=error_msg)
+            raise HTTPException(status_code=500, detail=error_msg)
         
         if not request.repository:
             error_msg = "Repository name is required"
@@ -86,9 +90,9 @@ async def extract_repository(request: RepoRequest):
         output_json = os.path.join(os.path.dirname(os.path.abspath(__file__)), "agents", "compression_path", "para_uriel.json")
         print(f"📁 [MAIN API] Output will be saved to: {output_json}")
         
-        # Aumentar workers para procesamiento más rápido (usa CPU cores disponibles)
+        # Increase workers for faster processing (uses available CPU cores)
         import multiprocessing
-        max_workers = min(multiprocessing.cpu_count(), 8)  # Máximo 8 workers
+        max_workers = min(multiprocessing.cpu_count(), 8)  # Maximum 8 workers
         
         print(f"\n{'='*70}")
         print(f"⚡ [MAIN API] Starting pipeline orchestration")
@@ -97,7 +101,7 @@ async def extract_repository(request: RepoRequest):
         
         result = orchestrate_pipeline(
             repository=request.repository,
-            github_token=request.github_token,
+            github_token=GITHUB_TOKEN,
             output_file=output_json,
             max_workers=max_workers
         )
@@ -189,10 +193,10 @@ async def explain_file(request: ExplainRequest):
 @app.post("/download-docs")
 async def download_documentation(request: RepoRequest):
     """
-    Genera y descarga documentación técnica completa en formato Markdown.
-    Incluye diagramas Mermaid y sección de mitigación.
+    Generates and downloads complete technical documentation in Markdown format.
+    Includes Mermaid diagrams and mitigation section.
     
-    Zero Waste: Descarga directa sin almacenamiento intermedio.
+    Zero Waste: Direct download without intermediate storage.
     """
     print(f"\n{'='*70}")
     print(f"📥 [DOWNLOAD DOCS] New documentation download request")
@@ -203,11 +207,11 @@ async def download_documentation(request: RepoRequest):
     print(f"{'='*70}\n")
     
     try:
-        # Validar inputs
-        if not request.github_token:
-            error_msg = "GitHub token is required"
+        # Validate inputs
+        if not GITHUB_TOKEN:
+            error_msg = "GitHub token is not configured on the server. Set GITHUB_TOKEN in .env"
             print(f"❌ [DOWNLOAD DOCS] {error_msg}")
-            raise HTTPException(status_code=400, detail=error_msg)
+            raise HTTPException(status_code=500, detail=error_msg)
         
         if not request.repository:
             error_msg = "Repository name is required"
@@ -219,7 +223,7 @@ async def download_documentation(request: RepoRequest):
             print(f"❌ [DOWNLOAD DOCS] {error_msg}")
             raise HTTPException(status_code=400, detail=error_msg)
         
-        # Paso 1: Ejecutar pipeline AST (reutilizar lógica de /extract)
+        # Step 1: Run AST pipeline (reuse /extract logic)
         output_json = os.path.join(os.path.dirname(os.path.abspath(__file__)), "agents", "compression_path", "para_uriel.json")
         print(f"📁 [DOWNLOAD DOCS] AST output: {output_json}")
         
@@ -233,18 +237,18 @@ async def download_documentation(request: RepoRequest):
         
         result = orchestrate_pipeline(
             repository=request.repository,
-            github_token=request.github_token,
+            github_token=GITHUB_TOKEN,
             output_file=output_json,
             max_workers=max_workers
         )
         
-        # Verificar resultado del pipeline
+        # Verify pipeline result
         if isinstance(result, str) and result.startswith("Error"):
             error_msg = f"Pipeline failed: {result}"
             print(f"❌ [DOWNLOAD DOCS] {error_msg}")
             raise HTTPException(status_code=500, detail=error_msg)
         
-        # Cargar AST generado
+        # Load generated AST
         if not os.path.exists(output_json):
             error_msg = f"AST generation failed - output file not created"
             print(f"❌ [DOWNLOAD DOCS] {error_msg}")
@@ -260,7 +264,7 @@ async def download_documentation(request: RepoRequest):
             print(f"❌ [DOWNLOAD DOCS] {error_msg}")
             raise HTTPException(status_code=500, detail=error_msg)
         
-        # Paso 2: Generar documentación completa
+        # Step 2: Generate full documentation
         print(f"\n{'='*70}")
         print(f"📝 [DOWNLOAD DOCS] Generating full documentation")
         print(f"{'='*70}\n")
@@ -275,12 +279,12 @@ async def download_documentation(request: RepoRequest):
             print(f"❌ [DOWNLOAD DOCS] {error_msg}")
             raise HTTPException(status_code=500, detail=error_msg)
         
-        # Paso 3: Preparar respuesta de descarga
-        # Convertir string a bytes para StreamingResponse
+        # Step 3: Prepare download response
+        # Convert string to bytes for StreamingResponse
         markdown_bytes = markdown_content.encode('utf-8')
         markdown_stream = io.BytesIO(markdown_bytes)
         
-        # Generar nombre de archivo basado en el repositorio
+        # Generate filename based on the repository
         repo_name = request.repository.replace('/', '_')
         filename = f"ODST_Technical_Documentation_{repo_name}.md"
         
@@ -291,7 +295,7 @@ async def download_documentation(request: RepoRequest):
         print(f"   Size: {len(markdown_bytes)} bytes")
         print(f"{'='*70}\n")
         
-        # Retornar StreamingResponse con headers apropiados
+        # Return StreamingResponse with appropriate headers
         return StreamingResponse(
             markdown_stream,
             media_type="text/markdown; charset=utf-8",

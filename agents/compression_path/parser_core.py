@@ -26,6 +26,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from threading import Lock
 import multiprocessing
 from datetime import datetime
+from dotenv import load_dotenv
 
 # ==========================================
 # DYNAMIC PATH RESOLUTION (Cross-Platform)
@@ -40,6 +41,10 @@ if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
 print(f"🔧 [PATH] Project root added to sys.path: {project_root}")
+
+# Load environment variables
+load_dotenv(project_root / ".env")
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
 
 # 1. IMPORT REPOSITORY ECOSYSTEM
 try:
@@ -537,7 +542,6 @@ app.add_middleware(
 )
 
 class PipelineRequest(BaseModel):
-    github_token: str
     repository: str
     max_workers: Optional[int] = None
     max_chunk_size: int = 100000
@@ -550,28 +554,31 @@ def home():
 @app.post("/process")
 async def process_repository(request: PipelineRequest):
     """
-    Endpoint directo para que Rafiki envíe datos y ejecute el pipeline completo
+    Direct endpoint for frontend/tools to send data and execute the complete pipeline
     """
     try:
         print(f"\n{'='*70}")
         print(f"🚀 PARSER CORE: Processing {request.repository}")
         print(f"{'='*70}\n")
         
-        # Ejecutar el pipeline completo
+        if not GITHUB_TOKEN:
+            raise HTTPException(status_code=500, detail="GITHUB_TOKEN environment variable not set")
+            
+        # Execute the complete pipeline
         result = orchestrate_pipeline(
             repository=request.repository,
-            github_token=request.github_token,
+            github_token=GITHUB_TOKEN,
             output_file="para_uriel.json",
             max_workers=request.max_workers,
             max_chunk_size=request.max_chunk_size,
             enable_chunking=request.enable_chunking
         )
         
-        # Verificar si hubo error
+        # Check if error occurred
         if isinstance(result, str) and result.startswith("Error"):
             raise HTTPException(status_code=500, detail=result)
         
-        # Determinar archivos de salida
+        # Determine output files
         output_files = []
         if isinstance(result, list):
             output_files = result
@@ -597,7 +604,7 @@ async def process_repository(request: PipelineRequest):
             detail=f"Pipeline execution error: {str(e)}"
         )
 
-# Para ejecutar este servidor directamente:
+# To execute this server directly:
 # uvicorn parser_core:app --reload --host 0.0.0.0 --port 8001
 
 

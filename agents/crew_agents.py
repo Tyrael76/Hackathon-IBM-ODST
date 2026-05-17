@@ -80,16 +80,16 @@ class CustomWatsonxLLM(LLM):
         """
         return self._call(prompt, **kwargs)
 
-# Instantiate models based on requirements - usando modelos disponibles
-# granite-8b-code-instruct es usado porque 3-1-8b-base no soporta text generation
+# Instantiate models based on requirements - using available models
+# granite-8b-code-instruct is used because 3-1-8b-base does not support text generation
 auditor_llm = CustomWatsonxLLM(model_id="ibm/granite-8b-code-instruct")
 writer_llm = CustomWatsonxLLM(model_id="ibm/granite-8b-code-instruct")
 
 def run_crew_analysis(ast_data: dict, filters: dict) -> List[Dict[str, Any]]:
     auditor = Agent(
-        role='Auditor Técnico Senior',
-        goal='Analizar el AST de un repositorio para extraer su arquitectura, reglas de negocio, vulnerabilidades (OWASP Top 10, tokens expuestos) y deuda técnica.',
-        backstory='Eres un arquitecto de software y experto en ciberseguridad. Te enfocas en descubrir vulnerabilidades OWASP, tokens expuestos y cazar antipatrones de diseño.',
+        role='Senior Technical Auditor',
+        goal='Analyze a repository AST to extract its architecture, business rules, vulnerabilities (OWASP Top 10, exposed tokens) and technical debt.',
+        backstory='You are a software architect and cybersecurity expert. You focus on discovering OWASP vulnerabilities, exposed tokens, and hunting design anti-patterns.',
         verbose=True,
         allow_delegation=False,
         max_iter=3,
@@ -97,53 +97,64 @@ def run_crew_analysis(ast_data: dict, filters: dict) -> List[Dict[str, Any]]:
     )
 
     writer = Agent(
-        role='Escritor Técnico Senior',
-        goal='Consolidar reportes técnicos. Para secciones de arquitectura, DEBES generar un diagrama de flujo de datos en sintaxis Mermaid.js encapsulado en un bloque de código ```mermaid.',
-        backstory='Eres un redactor técnico experto en formato Markdown y visualización de datos usando Mermaid.js.',
+        role='Senior Technical Writer',
+        goal='Consolidate technical reports. For architecture sections, you MUST generate a data flow diagram in Mermaid.js syntax wrapped in a ```mermaid code block.',
+        backstory='You are a technical writer expert in Markdown format and data visualization using Mermaid.js.',
         verbose=True,
         allow_delegation=False,
         max_iter=3,
         llm=writer_llm
     )
 
-    # Crear un resumen compacto del AST en lugar de enviar todo
+    # Create a compact summary of the AST instead of sending everything
     ast_summary = _create_ast_summary(ast_data)
     
     results = []
     
-    # Preparar todas las tareas para ejecución paralela
+    # Prepare all tasks for parallel execution
     tasks_to_execute = []
     
     if filters.get("overview", False):
-        tasks_to_execute.append(("overview", writer, f"Analiza el siguiente resumen del proyecto y proporciona un 'Overview' general de sus tecnologías principales:\n\n{ast_summary}\n\nEntrega el resultado en Markdown.", 1))
+        tasks_to_execute.append(("overview", writer, f"Analyze the following project summary and provide a general 'Overview' of its main technologies:\n\n{ast_summary}\n\nDeliver the result in Markdown.", 1))
 
     if filters.get("architecture", False):
         arch_prompt = (
-            f"Analiza la siguiente estructura del proyecto y deduce la arquitectura.\n"
-            f"DEBES seguir este formato estrictamente en Markdown:\n\n"
-            f"## Descripción General\n"
-            f"(Breve párrafo descriptivo de la arquitectura)\n\n"
-            f"## Componentes Principales\n"
-            f"(Lista con viñetas de los componentes clave)\n\n"
-            f"## Diagrama de Arquitectura\n"
-            f"(DEBES crear un diagrama de flujo usando sintaxis Mermaid.js encapsulado en un bloque ```mermaid)\n\n"
-            f"Estructura:\n{ast_summary}"
+            f"Analyze the following project structure and deduce the architecture.\n"
+            f"You MUST strictly follow this format in Markdown:\n\n"
+            f"## Overview\n"
+            f"(Brief descriptive paragraph of the architecture)\n\n"
+            f"## Main Components\n"
+            f"(Bullet point list of key components)\n\n"
+            f"## Architecture Diagram\n"
+            f"Create a flow diagram using Mermaid.js syntax. Use ONLY these valid Mermaid diagram types:\n"
+            f"- graph TD (top-down flowchart)\n"
+            f"- graph LR (left-right flowchart)\n"
+            f"- sequenceDiagram (for API flows)\n\n"
+            f"Example of valid syntax:\n"
+            f"```mermaid\n"
+            f"graph TD\n"
+            f"    A[Frontend] --> B[API]\n"
+            f"    B --> C[Database]\n"
+            f"    B --> D[External Service]\n"
+            f"```\n\n"
+            f"IMPORTANT: Use simple node names (A, B, C) and clear labels in brackets. Avoid special characters.\n\n"
+            f"Structure:\n{ast_summary}"
         )
         tasks_to_execute.append(("architecture", writer, arch_prompt, 2))
 
     if filters.get("business-logic", False):
-        tasks_to_execute.append(("business-logic", auditor, f"Analiza el siguiente resumen y extrae los procesos core, entidades y antipatrones detectados:\n\n{ast_summary}\n\nEntrega el resultado estructurado en Markdown.", 3))
+        tasks_to_execute.append(("business-logic", auditor, f"Analyze the following summary and extract the core processes, entities and detected anti-patterns:\n\n{ast_summary}\n\nDeliver the result structured in Markdown.", 3))
 
     if filters.get("onboarding-path", False):
-        tasks_to_execute.append(("onboarding-path", writer, f"Analiza el siguiente resumen y proporciona un 'Onboarding Path' recomendando qué archivos leer primero:\n\n{ast_summary}\n\nEntrega el resultado en Markdown.", 4))
+        tasks_to_execute.append(("onboarding-path", writer, f"Analyze the following summary and provide an 'Onboarding Path' recommending which files to read first:\n\n{ast_summary}\n\nDeliver the result in Markdown.", 4))
 
     if filters.get("security-audit", False):
-        tasks_to_execute.append(("security-audit", auditor, f"Analiza el siguiente resumen enfocándote en ciberseguridad. Busca vulnerabilidades OWASP Top 10 y secretos expuestos:\n\n{ast_summary}\n\nEntrega el resultado en Markdown.", 5))
+        tasks_to_execute.append(("security-audit", auditor, f"Analyze the following summary focusing on cybersecurity. Search for OWASP Top 10 vulnerabilities and exposed secrets:\n\n{ast_summary}\n\nDeliver the result in Markdown.", 5))
 
     if filters.get("technical-debt", False):
-        tasks_to_execute.append(("technical-debt", auditor, f"Analiza el siguiente resumen identificando malas prácticas, antipatrones y deuda técnica con sugerencias de refactorización:\n\n{ast_summary}\n\nEntrega el resultado en Markdown.", 6))
+        tasks_to_execute.append(("technical-debt", auditor, f"Analyze the following summary identifying bad practices, anti-patterns and technical debt with refactoring suggestions:\n\n{ast_summary}\n\nDeliver the result in Markdown.", 6))
     
-    # Ejecutar todas las tareas en paralelo usando ThreadPoolExecutor
+    # Execute all tasks in parallel using ThreadPoolExecutor
     if tasks_to_execute:
         print(f"\n{'='*70}")
         print(f"🤖 [CREW] Starting parallel analysis with {len(tasks_to_execute)} tasks")
@@ -157,7 +168,7 @@ def run_crew_analysis(ast_data: dict, filters: dict) -> List[Dict[str, Any]]:
                 prompt = f"System: {agent.backstory}\n\nTask: {description}"
                 
                 try:
-                    # Usar el método invoke del LLM directamente
+                    # Use the LLM's invoke method directly
                     future = executor.submit(agent.llm.invoke, prompt)
                     future_to_task[future] = (slug, order)
                 except Exception as submit_error:
@@ -174,7 +185,7 @@ def run_crew_analysis(ast_data: dict, filters: dict) -> List[Dict[str, Any]]:
                 slug, order = future_to_task[future]
                 try:
                     print(f"⏳ [CREW] Waiting for result: {slug}")
-                    response = future.result(timeout=120)  # 2 minutos timeout
+                    response = future.result(timeout=120)  # 2 minute timeout
                     print(f"✅ [CREW] Completed: {slug}")
                     results.append({
                         "title": slug.replace("-", " ").title(),
@@ -211,29 +222,28 @@ def run_crew_analysis(ast_data: dict, filters: dict) -> List[Dict[str, Any]]:
         print(f"✅ [CREW] All tasks completed: {len(results)} results")
         print(f"{'='*70}\n")
     
-    # Ordenar resultados por orden
+    # Sort results by order
     results.sort(key=lambda x: x["order"])
     return results
 
 def _create_ast_summary(ast_data: dict, max_chars: int = 5000) -> str:
     """
-    Crea un resumen compacto del AST para reducir el tamaño del contexto.
-    Extrae solo la información más relevante.
+    Creates a compact summary of the AST to reduce the context size.
+    Extracts only the most relevant information.
     """
     summary_parts = []
-    
-    # Extraer estructura de archivos
+    # Extract file structure
     if "files" in ast_data:
-        file_list = list(ast_data["files"].keys())[:50]  # Primeros 50 archivos
+        file_list = list(ast_data["files"].keys())[:50]  # First 50 files
         summary_parts.append(f"Files ({len(ast_data['files'])} total): {', '.join(file_list)}")
     
-    # Extraer dependencias principales
+    # Extract main dependencies
     if "dependencies" in ast_data:
         deps = ast_data.get("dependencies", {})
         if deps:
             summary_parts.append(f"Dependencies: {', '.join(list(deps.keys())[:20])}")
     
-    # Extraer funciones/clases principales (muestra limitada)
+    # Extract main functions/classes (limited sample)
     if "files" in ast_data:
         main_entities = []
         for file_path, file_data in list(ast_data["files"].items())[:10]:
@@ -247,7 +257,7 @@ def _create_ast_summary(ast_data: dict, max_chars: int = 5000) -> str:
     
     summary = "\n\n".join(summary_parts)
     
-    # Truncar si es necesario
+    # Truncate if necessary
     if len(summary) > max_chars:
         summary = summary[:max_chars] + "\n... [TRUNCATED]"
     
@@ -255,125 +265,125 @@ def _create_ast_summary(ast_data: dict, max_chars: int = 5000) -> str:
 
 def generate_full_documentation(ast_data: dict, filters: dict) -> str:
     """
-    Genera documentación técnica completa en formato Markdown usando llamadas de LLM en paralelo.
-    Incluye una sección de mitigación al final con comandos de remediación.
+    Generates complete technical documentation in Markdown format using parallel LLM calls.
+    Includes a mitigation section at the end with remediation commands.
     
     Args:
-        ast_data: Datos del AST del repositorio
-        filters: Filtros de secciones a incluir
+        ast_data: AST data of the repository
+        filters: Section filters to include
     
     Returns:
-        String con el documento Markdown completo
+        String with the complete Markdown document
     """
     print(f"\n{'='*70}")
     print(f"📄 [DOCUMENTATION] Starting parallel technical documentation generation")
     print(f"{'='*70}\n")
     
-    # Crear resumen del AST
+    # Create AST summary
     ast_summary = _create_ast_summary(ast_data)
     
-    # Preparar tareas secuenciales para ejecución paralela
+    # Prepare sequential tasks for parallel execution
     tasks_to_execute = []
     
-    # Encabezado del documento
-    doc_header = f"# Documentación Técnica - ODST Analysis\n\n"
-    doc_header += f"**Generado por:** ODST (Omniscient Documentation & Security Toolkit)\n\n"
+    # Document header
+    doc_header = f"# Technical Documentation - ODST Analysis\n\n"
+    doc_header += f"**Generated by:** ODST (Omniscient Documentation & Security Toolkit)\n\n"
     doc_header += f"---\n\n"
     
     if filters.get("overview", False):
         overview_prompt = (
-            f"Analiza el siguiente resumen del AST de un repositorio y escribe el contenido para la sección 'Overview' (Vista General).\n"
-            f"Escribe un informe detallado e interesante en español, utilizando subtítulos en Markdown (H3: ###), listas y negritas.\n"
-            f"DEBES incluir:\n"
-            f"- Resumen del Proyecto: Explicación clara y amena de qué hace el proyecto.\n"
-            f"- Tecnologías Detectadas: Qué lenguajes, frameworks o librerías principales utiliza.\n"
-            f"- Organización del Código: Cómo están organizadas las carpetas principales y qué responsabilidades tienen.\n\n"
-            f"NO incluyas el título principal '## Overview', ya que será añadido automáticamente. Empieza directamente con el contenido.\n\n"
-            f"Resumen del AST:\n{ast_summary}"
+            f"Analyze the following AST summary of a repository and write the content for the 'Overview' section.\n"
+            f"Write a detailed and engaging report in English, using Markdown subtitles (H3: ###), lists and bold text.\n"
+            f"You MUST include:\n"
+            f"- Project Summary: Clear and user-friendly explanation of what the project does.\n"
+            f"- Detected Technologies: What main languages, frameworks, or libraries are used.\n"
+            f"- Code Organization: How key folders are organized and what responsibilities they have.\n\n"
+            f"Do NOT include the main title '## Overview', as it will be added automatically. Start directly with the content.\n\n"
+            f"AST Summary:\n{ast_summary}"
         )
-        tasks_to_execute.append(("overview", "Escritor Técnico Senior", overview_prompt, "## Overview", 1))
+        tasks_to_execute.append(("overview", "Senior Technical Writer", overview_prompt, "## Overview", 1))
     
     if filters.get("architecture", False):
         arch_prompt = (
-            f"Analiza la estructura del proyecto y escribe el contenido para la sección 'Arquitectura del Sistema'.\n"
-            f"Escribe un informe estructurado en español, utilizando subtítulos (###).\n"
-            f"DEBES incluir:\n"
-            f"- Descripción General: Patrón de diseño principal (ej. MVC, monolito, etc.) y flujo de información.\n"
-            f"- Componentes Clave: Responsabilidad de cada directorio y archivo principal.\n"
-            f"- Diagrama de Arquitectura (Mermaid.js): DEBES crear un diagrama de flujo usando la sintaxis Mermaid.js encapsulado en un bloque ```mermaid.\n\n"
-            f"NO incluyas el título principal '## Arquitectura del Sistema', ya que será añadido automáticamente. Empieza directamente con el contenido.\n\n"
-            f"Resumen del AST:\n{ast_summary}"
+            f"Analyze the project structure and write the content for the 'System Architecture' section.\n"
+            f"Write a structured report in English, using subtitles (###).\n"
+            f"You MUST include:\n"
+            f"- General Description: Main design pattern (e.g. MVC, monolith, etc.) and information flow.\n"
+            f"- Key Components: Responsibility of each main directory and file.\n"
+            f"- Architecture Diagram (Mermaid.js): You MUST create a flow diagram using Mermaid.js syntax wrapped in a ```mermaid block.\n\n"
+            f"Do NOT include the main title '## System Architecture', as it will be added automatically. Start directly with the content.\n\n"
+            f"AST Summary:\n{ast_summary}"
         )
-        tasks_to_execute.append(("architecture", "Escritor Técnico Senior", arch_prompt, "## Arquitectura del Sistema", 2))
+        tasks_to_execute.append(("architecture", "Senior Technical Writer", arch_prompt, "## System Architecture", 2))
     
     if filters.get("business-logic", False):
         logic_prompt = (
-            f"Analiza el AST del proyecto y escribe el contenido para la sección 'Lógica de Negocio'.\n"
-            f"Escribe un informe estructurado en español, utilizando subtítulos (###).\n"
-            f"DEBES incluir:\n"
-            f"- Procesos Core: Reglas de negocio principales y flujos de usuario.\n"
-            f"- Entidades y Datos: Modelos de dominio principales.\n"
-            f"- Flujo de Información: Cómo interactúan las funciones y servicios.\n\n"
-            f"NO incluyas el título principal '## Lógica de Negocio', ya que será añadido automáticamente. Empieza directamente con el contenido.\n\n"
-            f"Resumen del AST:\n{ast_summary}"
+            f"Analyze the project AST and write the content for the 'Business Logic' section.\n"
+            f"Write a structured report in English, using subtitles (###).\n"
+            f"You MUST include:\n"
+            f"- Core Processes: Main business rules and user flows.\n"
+            f"- Entities and Data: Key domain models.\n"
+            f"- Information Flow: How functions and services interact.\n\n"
+            f"Do NOT include the main title '## Business Logic', as it will be added automatically. Start directly with the content.\n\n"
+            f"AST Summary:\n{ast_summary}"
         )
-        tasks_to_execute.append(("business-logic", "Auditor Técnico Senior", logic_prompt, "## Lógica de Negocio", 3))
+        tasks_to_execute.append(("business-logic", "Senior Technical Auditor", logic_prompt, "## Business Logic", 3))
     
     if filters.get("onboarding-path", False):
         onboarding_prompt = (
-            f"Analiza el AST del repositorio y escribe el contenido para la sección 'Guía de Onboarding' (Inicio Rápido).\n"
-            f"Escribe un informe estructurado en español, utilizando subtítulos (###).\n"
-            f"DEBES incluir:\n"
-            f"- Ruta de Lectura Recomendada: Lista numerada de archivos a leer para entender el proyecto.\n"
-            f"- Configuración Inicial: Requisitos de software y dependencias.\n"
-            f"- Arranque Local: Comandos y pasos para levantar la aplicación localmente.\n\n"
-            f"NO incluyas el título principal '## Guía de Onboarding', ya que será añadido automáticamente. Empieza directamente con el contenido.\n\n"
-            f"Resumen del AST:\n{ast_summary}"
+            f"Analyze the repository AST and write the content for the 'Onboarding Guide' (Quick Start) section.\n"
+            f"Write a structured report in English, using subtitles (###).\n"
+            f"You MUST include:\n"
+            f"- Recommended Reading Path: Numbered list of files to read to understand the project.\n"
+            f"- Initial Setup: Software requirements and dependencies.\n"
+            f"- Local Start: Commands and steps to run the application locally.\n\n"
+            f"Do NOT include the main title '## Onboarding Guide', as it will be added automatically. Start directly with the content.\n\n"
+            f"AST Summary:\n{ast_summary}"
         )
-        tasks_to_execute.append(("onboarding-path", "Escritor Técnico Senior", onboarding_prompt, "## Guía de Onboarding", 4))
+        tasks_to_execute.append(("onboarding-path", "Senior Technical Writer", onboarding_prompt, "## Onboarding Guide", 4))
     
     if filters.get("security-audit", False):
         security_prompt = (
-            f"Analiza el AST del repositorio y escribe el contenido para la sección 'Auditoría de Seguridad'.\n"
-            f"Escribe un informe estructurado en español, utilizando subtítulos (###).\n"
-            f"DEBES incluir:\n"
-            f"- Vulnerabilidades Potenciales: Riesgos OWASP Top 10 (ej. inyecciones, fugas, etc.).\n"
-            f"- Credenciales y Secretos: Si hay sospecha de claves API o tokens expuestos.\n"
-            f"- Recomendaciones: Acciones inmediatas para fortalecer el código.\n\n"
-            f"NO incluyas el título principal '## Auditoría de Seguridad', ya que será añadido automáticamente. Empieza directamente con el contenido.\n\n"
-            f"Resumen del AST:\n{ast_summary}"
+            f"Analyze the repository AST and write the content for the 'Security Audit' section.\n"
+            f"Write a structured report in English, using subtitles (###).\n"
+            f"You MUST include:\n"
+            f"- Potential Vulnerabilities: OWASP Top 10 risks (e.g. injections, leaks, etc.).\n"
+            f"- Credentials and Secrets: If there is suspicion of API keys or exposed tokens.\n"
+            f"- Recommendations: Immediate actions to strengthen the code.\n\n"
+            f"Do NOT include the main title '## Security Audit', as it will be added automatically. Start directly with the content.\n\n"
+            f"AST Summary:\n{ast_summary}"
         )
-        tasks_to_execute.append(("security-audit", "Auditor Técnico Senior", security_prompt, "## Auditoría de Seguridad", 5))
+        tasks_to_execute.append(("security-audit", "Senior Technical Auditor", security_prompt, "## Security Audit", 5))
     
     if filters.get("technical-debt", False):
         debt_prompt = (
-            f"Analiza el AST del repositorio y escribe el contenido para la sección 'Deuda Técnica'.\n"
-            f"Escribe un informe estructurado en español, utilizando subtítulos (###).\n"
-            f"DEBES incluir:\n"
-            f"- Malas Prácticas y Antipatrones: Código con alta complejidad o dependencias obsoletas.\n"
-            f"- Modularidad: Evaluación del nivel de acoplamiento del software.\n"
-            f"- Plan de Refactorización: Sugerencias concretas para mejorar la calidad del código.\n\n"
-            f"NO incluyas el título principal '## Deuda Técnica', ya que será añadido automáticamente. Empieza directamente con el contenido.\n\n"
-            f"Resumen del AST:\n{ast_summary}"
+            f"Analyze the repository AST and write the content for the 'Technical Debt' section.\n"
+            f"Write a structured report in English, using subtitles (###).\n"
+            f"You MUST include:\n"
+            f"- Bad Practices and Anti-patterns: Code with high complexity or obsolete dependencies.\n"
+            f"- Modularity: Evaluation of software coupling level.\n"
+            f"- Refactoring Plan: Concrete suggestions to improve code quality.\n\n"
+            f"Do NOT include the main title '## Technical Debt', as it will be added automatically. Start directly with the content.\n\n"
+            f"AST Summary:\n{ast_summary}"
         )
-        tasks_to_execute.append(("technical-debt", "Auditor Técnico Senior", debt_prompt, "## Deuda Técnica", 6))
+        tasks_to_execute.append(("technical-debt", "Senior Technical Auditor", debt_prompt, "## Technical Debt", 6))
     
-    # Tarea de mitigación (siempre se incluye si hay alguna auditoría o deuda)
+    # Mitigation task (always included if security or technical debt is enabled)
     if filters.get("security-audit", False) or filters.get("technical-debt", False):
         mitigation_prompt = (
-            f"Basándote en el análisis del AST, escribe el contenido para la sección 'Guía de Ejecución Correcta y Mitigación'.\n"
-            f"Escribe un informe estructurado en español, utilizando subtítulos (###).\n"
-            f"DEBES incluir:\n"
-            f"- Comandos de Remediación: Comandos de consola reales y copy-pasteables (ej. `pip-audit`, `bandit -r .`, `black .`, `pylint`).\n"
-            f"- Prácticas de Desarrollo Seguro: Recomendaciones para el día a día.\n"
-            f"- Plan de Acción Prioritario: Lista ordenada por prioridad (Alta, Media, Baja).\n\n"
-            f"NO incluyas el título principal '## Guía de Ejecución Correcta y Mitigación', ya que será añadido automáticamente. Empieza directamente con el contenido.\n\n"
-            f"Resumen del AST:\n{ast_summary}"
+            f"Based on the AST analysis, write the content for the 'Execution Guide and Mitigation' section.\n"
+            f"Write a structured report in English, using subtitles (###).\n"
+            f"You MUST include:\n"
+            f"- Remediation Commands: Real, copy-pasteable console commands (e.g. `pip-audit`, `bandit -r .`, `black .`, `pylint`).\n"
+            f"- Secure Development Practices: Recommendations for day-to-day work.\n"
+            f"- Priority Action Plan: List ordered by priority (High, Medium, Low).\n\n"
+            f"Do NOT include the main title '## Execution Guide and Mitigation', as it will be added automatically. Start directly with the content.\n\n"
+            f"AST Summary:\n{ast_summary}"
         )
-        tasks_to_execute.append(("mitigation", "Escritor Técnico Senior", mitigation_prompt, "## Guía de Ejecución Correcta y Mitigación", 7))
+        tasks_to_execute.append(("mitigation", "Senior Technical Writer", mitigation_prompt, "## Execution Guide and Mitigation", 7))
     
     if not tasks_to_execute:
-        return doc_header + "\n*No se seleccionaron secciones para generar.*\n"
+        return doc_header + "\n*No sections were selected to generate.*\n"
     
     results = []
     
@@ -385,9 +395,9 @@ def generate_full_documentation(ast_data: dict, filters: dict) -> str:
             for task_info in tasks_to_execute:
                 slug, role, prompt_text, header, order = task_info
                 print(f"📋 [DOCUMENTATION] Submitting task to thread pool: {slug}")
-                full_prompt = f"System: Eres un {role}. Actúa siempre de manera profesional y entrega el contenido estructurado en un Markdown limpio y detallado.\n\nTask: {prompt_text}"
+                full_prompt = f"System: You are a {role}. Always act professionally and deliver the structured content in clean, detailed Markdown.\n\nTask: {prompt_text}"
                 
-                # Ejecutar a través de invoke del LLM directamente (utiliza caché global si coincide)
+                # Execute through LLM's invoke directly (uses global cache if hit matches)
                 future = executor.submit(writer_llm.invoke, full_prompt)
                 future_to_task[future] = (slug, header, order)
             
@@ -395,26 +405,26 @@ def generate_full_documentation(ast_data: dict, filters: dict) -> str:
                 slug, header, order = future_to_task[future]
                 try:
                     print(f"⏳ [DOCUMENTATION] Waiting for parallel result: {slug}")
-                    response = future.result(timeout=120)  # 2 minutos de timeout por tarea
+                    response = future.result(timeout=120)  # 2 minute timeout per task
                     print(f"✅ [DOCUMENTATION] Thread complete: {slug}")
                     
-                    # Consolidar el resultado con su título Markdown correcto
+                    # Consolidate result with its correct Markdown title
                     section_content = f"{header}\n\n{str(response)}"
                     results.append((order, section_content))
                 except TimeoutError:
                     print(f"⏱️ [DOCUMENTATION] Timeout for task: {slug}")
-                    results.append((order, f"{header}\n\n*Error: La generación de esta sección excedió el tiempo límite de 120 segundos.*\n"))
+                    results.append((order, f"{header}\n\n*Error: Generation of this section exceeded the 120-second time limit.*\n"))
                 except Exception as e:
                     import traceback
                     error_trace = traceback.format_exc()
                     print(f"❌ [DOCUMENTATION] Thread failed: {slug}")
                     print(f"   Message: {str(e)}")
-                    results.append((order, f"{header}\n\n*Error al generar reporte: {str(e)}*\n\n```\n{error_trace}\n```\n"))
+                    results.append((order, f"{header}\n\n*Error generating report: {str(e)}*\n\n```\n{error_trace}\n```\n"))
         
-        # Ordenar resultados por su secuencia
+        # Sort results by their sequence order
         results.sort(key=lambda x: x[0])
         
-        # Combinar encabezado con el contenido generado
+        # Combine header with generated content
         full_doc = doc_header
         for _, content in results:
             full_doc += content + "\n\n"
@@ -433,20 +443,21 @@ def generate_full_documentation(ast_data: dict, filters: dict) -> str:
         print(f"   Message: {str(e)}")
         print(f"   Traceback:\n{error_trace}")
         
-        # Retornar documento indicando el error crítico
+        # Return document indicating critical error
         error_doc = doc_header
-        error_doc += f"## Error Crítico en Generación\n\n"
-        error_doc += f"Se produjo un error crítico en el orquestador paralelo de la documentación:\n\n"
+        error_doc += f"## Critical Error in Generation\n\n"
+        error_doc += f"A critical error occurred in the parallel documentation orchestrator:\n\n"
         error_doc += f"```\n{str(e)}\n```\n\n"
-        error_doc += f"### Detalles Técnicos\n\n"
+        error_doc += f"### Technical Details\n\n"
         error_doc += f"```\n{error_trace}\n```\n"
         
         return error_doc
 
 def explain_file_direct(file_path: str, file_content: str) -> str:
-    prompt = f"Explica en un párrafo corto y 3 viñetas qué hace exactamente este archivo de código, sus dependencias críticas y si tiene algún antipatrón latente.\n\nArchivo: {file_path}\nContenido:\n{file_content}"
+    prompt = f"Explain in a short paragraph and 3 bullet points exactly what this code file does, its critical dependencies, and if it has any latent anti-patterns.\n\nFile: {file_path}\nContent:\n{file_content}"
     response = writer_llm.invoke(prompt)
     return response
+
 
 
 

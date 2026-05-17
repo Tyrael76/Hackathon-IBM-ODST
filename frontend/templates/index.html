@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ODST - Powered by IBM Bob</title>
     <link rel="stylesheet" href="/static/css/styles.css">
 </head>
+
 <body>
     <div class="glow-background"></div>
     <div class="container">
@@ -17,122 +19,110 @@
         <form id="odst-form">
             <div class="top-section">
                 <div class="input-row">
-                    <div class="input-group">
-                        <label for="github-token">GitHub Token (PAT):</label>
-                        <input type="password" id="github-token" name="github-token" required>
-                        <small>Make sure your token has repository read permissions</small>
-                    </div>
 
                     <div class="input-group">
                         <label for="repo-url">Repository URL:</label>
-                        <input type="text" id="repo-url" name="repo-url" placeholder="https://github.com/user/repository" required>
-                        <small>Make sure your repository doesn't contain exposed API Keys or sensitive information</small>
-                    </div>
-
-                    <div class="input-group branch-group">
-                        <label for="branch">Select your branch</label>
-                        <div class="branch-selector">
-                            <select id="branch" name="branch">
-                                <option value="main">Main</option>
-                                <option value="master">Master</option>
-                                <option value="dev">Dev</option>
-                            </select>
-                            <span class="dropdown-arrow">▼</span>
-                        </div>
+                        <input type="text" id="repo-url" name="repo-url"
+                            placeholder="https://github.com/user/repository" required>
+                        <small>Make sure your repository doesn't contain exposed API Keys or sensitive
+                            information</small>
                     </div>
                 </div>
             </div>
-            
+
             <div class="filters-header">
                 <h2>Filters:</h2>
-                <button type="button" id="select-all-btn" class="secondary-btn">Select All <span class="check-icon">✔</span></button>
+                <button type="button" id="select-all-btn" class="secondary-btn">Select All <span
+                        class="check-icon">✔</span></button>
             </div>
-            
+
             <div class="options-section">
-    <div class="block">
-        <h3>Understanding Block</h3>
-        <div class="btn-row">
-            <label class="toggle-btn">
-                <input type="checkbox" name="filtros" value="onboarding-path">
-                <div class="btn-content">
-                    <span class="text">Onboarding Path</span>
-                    <span class="check-box"></span>
+                <div class="block">
+                    <h3>Understanding Block</h3>
+                    <div class="btn-row">
+                        <label class="toggle-btn">
+                            <input type="checkbox" name="filters" value="onboarding-path">
+                            <div class="btn-content">
+                                <span class="text">Onboarding Path</span>
+                                <span class="check-box"></span>
+                            </div>
+                        </label>
+                    </div>
                 </div>
-            </label>
-        </div>
-    </div>
 
-    <div class="block">
-        <h3>Auditing Block</h3>
-        <div class="btn-row">
-            <label class="toggle-btn">
-                <input type="checkbox" name="filtros" value="security-audit">
-                <div class="btn-content">
-                    <span class="text">Security Audit</span>
-                    <span class="check-box"></span>
-                </div>
-            </label>
+                <div class="block">
+                    <h3>Auditing Block</h3>
+                    <div class="btn-row">
+                        <label class="toggle-btn">
+                            <input type="checkbox" name="filters" value="security-audit">
+                            <div class="btn-content">
+                                <span class="text">Security Audit</span>
+                                <span class="check-box"></span>
+                            </div>
+                        </label>
 
-            <label class="toggle-btn">
-                <input type="checkbox" name="filtros" value="technical-debt">
-                <div class="btn-content">
-                    <span class="text">Technical Debt</span>
-                    <span class="check-box"></span>
+                        <label class="toggle-btn">
+                            <input type="checkbox" name="filters" value="technical-debt">
+                            <div class="btn-content">
+                                <span class="text">Technical Debt</span>
+                                <span class="check-box"></span>
+                            </div>
+                        </label>
+                    </div>
                 </div>
-            </label>
-        </div>
-    </div>
 
-    <div class="block">
-        <h3>Generation Block</h3>
-        <div class="btn-row">
-            <label class="toggle-btn">
-                <input type="checkbox" name="filtros" value="overview">
-                <div class="btn-content">
-                    <span class="text">Overview</span>
-                    <span class="check-box"></span>
-                </div>
-            </label>
+                <div class="block">
+                    <h3>Generation Block</h3>
+                    <div class="btn-row">
+                        <label class="toggle-btn">
+                            <input type="checkbox" name="filters" value="overview">
+                            <div class="btn-content">
+                                <span class="text">Overview</span>
+                                <span class="check-box"></span>
+                            </div>
+                        </label>
 
-            <label class="toggle-btn">
-                <input type="checkbox" name="filtros" value="architecture">
-                <div class="btn-content">
-                    <span class="text">Architecture</span>
-                    <span class="check-box"></span>
-                </div>
-            </label>
+                        <label class="toggle-btn">
+                            <input type="checkbox" name="filters" value="architecture">
+                            <div class="btn-content">
+                                <span class="text">Architecture</span>
+                                <span class="check-box"></span>
+                            </div>
+                        </label>
 
-            <label class="toggle-btn">
-                <input type="checkbox" name="filtros" value="business-logic">
-                <div class="btn-content">
-                    <span class="text">Business Logic</span>
-                    <span class="check-box"></span>
+                        <label class="toggle-btn">
+                            <input type="checkbox" name="filters" value="business-logic">
+                            <div class="btn-content">
+                                <span class="text">Business Logic</span>
+                                <span class="check-box"></span>
+                            </div>
+                        </label>
+                    </div>
                 </div>
-            </label>
-        </div>
-    </div>
 
-    <div class="block">
-        <h3>Documentation Block</h3>
-        <div class="btn-row">
-            <label class="toggle-btn">
-                <input type="checkbox" name="filtros" value="full-documentation" id="full-doc-checkbox">
-                <div class="btn-content">
-                    <span class="text">Full Documentation</span>
-                    <span class="check-box"></span>
+                <div class="block">
+                    <h3>Documentation Block</h3>
+                    <div class="btn-row">
+                        <label class="toggle-btn">
+                            <input type="checkbox" name="filters" value="full-documentation" id="full-doc-checkbox">
+                            <div class="btn-content">
+                                <span class="text">Full Documentation</span>
+                                <span class="check-box"></span>
+                            </div>
+                        </label>
+                    </div>
+                    <div id="download-section"
+                        style="display: none; margin-top: 1rem; padding: 1rem; background: rgba(30, 36, 48, 0.5); border-radius: 8px; border: 1px solid #30363d;">
+                        <p style="color: #8b949e; font-size: 0.9rem; margin-bottom: 0.8rem;">
+                            📄 Generate and download complete technical documentation including all sections, diagrams,
+                            and mitigation guide.
+                        </p>
+                        <button type="button" id="download-docs-btn" class="secondary-btn" style="width: 100%;">
+                            <span style="margin-right: 8px;">📥</span> Download Full Documentation
+                        </button>
+                    </div>
                 </div>
-            </label>
-        </div>
-        <div id="download-section" style="display: none; margin-top: 1rem; padding: 1rem; background: rgba(30, 36, 48, 0.5); border-radius: 8px; border: 1px solid #30363d;">
-            <p style="color: #8b949e; font-size: 0.9rem; margin-bottom: 0.8rem;">
-                📄 Generate and download complete technical documentation including all sections, diagrams, and mitigation guide.
-            </p>
-            <button type="button" id="download-docs-btn" class="secondary-btn" style="width: 100%;">
-                <span style="margin-right: 8px;">📥</span> Download Full Documentation
-            </button>
-        </div>
-    </div>
-</div>
+            </div>
 
             <div class="action-section">
                 <button type="submit" id="analyze-btn">Analyze Repository <span class="arrow">➤</span></button>
@@ -152,8 +142,9 @@
                 <button class="accordion-header">Overview</button>
                 <div class="accordion-content">
                     <p class="section-label">DESCRIPTION:</p>
-                    <div class="content-text" id="res-overview-desc" style="margin-bottom: 20px; line-height: 1.6; color: #c9d1d9;"></div>
-                    
+                    <div class="content-text" id="res-overview-desc"
+                        style="margin-bottom: 20px; line-height: 1.6; color: #c9d1d9;"></div>
+
                     <p class="section-label">DETECTED TECHNOLOGIES:</p>
                     <div class="grey-box" id="res-overview-tech"></div>
                 </div>
@@ -163,8 +154,9 @@
                 <button class="accordion-header">Architecture</button>
                 <div class="accordion-content">
                     <p class="section-label">DESCRIPTION:</p>
-                    <div class="content-text" id="res-arch-desc" style="margin-bottom: 20px; line-height: 1.6; color: #c9d1d9;"></div>
-                    
+                    <div class="content-text" id="res-arch-desc"
+                        style="margin-bottom: 20px; line-height: 1.6; color: #c9d1d9;"></div>
+
                     <p class="section-label">MAIN COMPONENTS:</p>
                     <div class="grey-box" id="res-arch-components" style="margin-bottom: 20px;"></div>
 
@@ -177,8 +169,9 @@
                 <button class="accordion-header">Business Logic</button>
                 <div class="accordion-content">
                     <p class="section-label">DESCRIPTION (MAIN FLOW):</p>
-                    <div class="content-text" id="res-biz-flow" style="margin-bottom: 20px; line-height: 1.6; color: #c9d1d9;"></div>
-                    
+                    <div class="content-text" id="res-biz-flow"
+                        style="margin-bottom: 20px; line-height: 1.6; color: #c9d1d9;"></div>
+
                     <p class="section-label">RELEVANT DECISIONS:</p>
                     <div class="grey-box" id="res-biz-decisions"></div>
                 </div>
@@ -188,8 +181,10 @@
                 <button class="accordion-header">Onboarding Path</button>
                 <div class="accordion-content">
                     <p class="section-label">DESCRIPTION:</p>
-                    <div class="content-text" style="margin-bottom: 20px; line-height: 1.6; color: #c9d1d9;">Below is the recommended reading order and key concepts to get familiar with this repository efficiently.</div>
-                    
+                    <div class="content-text" style="margin-bottom: 20px; line-height: 1.6; color: #c9d1d9;">Below is
+                        the recommended reading order and key concepts to get familiar with this repository efficiently.
+                    </div>
+
                     <p class="section-label">RECOMMENDED READING ORDER:</p>
                     <div class="grey-box" id="res-path-order"></div>
                 </div>
@@ -199,8 +194,9 @@
                 <button class="accordion-header">Security Audit</button>
                 <div class="accordion-content">
                     <p class="section-label">VULNERABILITIES & EXPOSED SECRETS:</p>
-                    <div class="content-text" id="res-sec-vuln" style="margin-bottom: 20px; line-height: 1.6; color: #c9d1d9;"></div>
-                    
+                    <div class="content-text" id="res-sec-vuln"
+                        style="margin-bottom: 20px; line-height: 1.6; color: #c9d1d9;"></div>
+
                     <p class="section-label">RECOMMENDATIONS:</p>
                     <div class="grey-box" id="res-sec-rec"></div>
                 </div>
@@ -210,8 +206,9 @@
                 <button class="accordion-header">Technical Debt</button>
                 <div class="accordion-content">
                     <p class="section-label">ANTI-PATTERNS & ISSUES:</p>
-                    <div class="content-text" id="res-debt-issues" style="margin-bottom: 20px; line-height: 1.6; color: #c9d1d9;"></div>
-                    
+                    <div class="content-text" id="res-debt-issues"
+                        style="margin-bottom: 20px; line-height: 1.6; color: #c9d1d9;"></div>
+
                     <p class="section-label">REFACTORING SUGGESTIONS:</p>
                     <div class="grey-box" id="res-debt-refactor"></div>
                 </div>
@@ -226,11 +223,12 @@
     <script src="/static/js/results.js"></script>
     <script>
         document.querySelectorAll('.accordion-header').forEach(h => {
-            h.addEventListener('click', function() {
+            h.addEventListener('click', function () {
                 this.classList.toggle('collapsed');
                 this.nextElementSibling.classList.toggle('hidden');
             });
         });
     </script>
 </body>
+
 </html>

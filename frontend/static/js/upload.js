@@ -1,3 +1,8 @@
+// Dynamic API Base resolution:
+// If the frontend is served from Flask (port 5000), redirect API calls to the FastAPI backend (port 8000).
+// Otherwise, keep them relative.
+const API_BASE = window.location.port === '5000' ? 'http://localhost:8000' : '';
+
 // select all button
 document.addEventListener('DOMContentLoaded', () => {
     const selectAllBtn = document.getElementById('select-all-btn');
@@ -6,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (selectAllBtn) {
         selectAllBtn.addEventListener('click', () => {
             allSelected = !allSelected;
-            const checkboxes = document.querySelectorAll('input[name="filtros"]');
+            const checkboxes = document.querySelectorAll('input[name="filters"]');
             
             checkboxes.forEach(cb => {
                 cb.checked = allSelected;
@@ -16,12 +21,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? 'Deselect All <span class="check-icon">✖</span>'
                 : 'Select All <span class="check-icon">✔</span>';
             
-            // Actualizar visibilidad del botón de descarga
+            // Update download button visibility
             updateDownloadButtonVisibility();
         });
     }
 
-    // Manejar checkbox de documentación completa
+    // Handle full documentation checkbox
     const fullDocCheckbox = document.getElementById('full-doc-checkbox');
     const downloadSection = document.getElementById('download-section');
     
@@ -31,14 +36,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Manejar botón de descarga
+    // Handle download button
     const downloadBtn = document.getElementById('download-docs-btn');
     if (downloadBtn) {
         downloadBtn.addEventListener('click', handleDownloadDocumentation);
     }
 });
 
-// Función para mostrar/ocultar el botón de descarga
+// Function to show/hide the download button
 function updateDownloadButtonVisibility() {
     const fullDocCheckbox = document.getElementById('full-doc-checkbox');
     const downloadSection = document.getElementById('download-section');
@@ -52,24 +57,18 @@ function updateDownloadButtonVisibility() {
     }
 }
 
-// Función para manejar la descarga de documentación
+// Function to handle documentation download
 async function handleDownloadDocumentation() {
     const btn = document.getElementById('download-docs-btn');
-    const token = document.getElementById('github-token').value;
     let repoUrl = document.getElementById('repo-url').value;
     
-    // Validar inputs
-    if (!token) {
-        alert('⚠️ Please enter your GitHub token first');
-        return;
-    }
-    
+    // Validate inputs
     if (!repoUrl) {
         alert('⚠️ Please enter a repository URL first');
         return;
     }
     
-    // Limpiar URL si es necesario
+    // Clean URL if necessary
     let repository = repoUrl;
     if (repoUrl.includes('github.com')) {
         const urlParts = repoUrl.split('github.com/');
@@ -78,16 +77,14 @@ async function handleDownloadDocumentation() {
         }
     }
     
-    // Deshabilitar botón y mostrar estado de carga
+    // Disable button and show loading state
     btn.disabled = true;
     const originalHTML = btn.innerHTML;
     btn.innerHTML = '<span style="margin-right: 8px;">⏳</span> Generating Documentation...';
     
-    // Preparar payload con todos los filtros activados
+    // Prepare payload with all filters enabled
     const payload = {
-        github_token: token,
         repository: repository,
-        branch: document.getElementById('branch').value,
         filters: {
             "overview": true,
             "architecture": true,
@@ -102,7 +99,7 @@ async function handleDownloadDocumentation() {
     console.log('📥 Downloading documentation for:', repository);
     
     try {
-        const response = await fetch('/download-docs', {
+        const response = await fetch(`${API_BASE}/download-docs`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -111,10 +108,10 @@ async function handleDownloadDocumentation() {
         });
         
         if (response.ok) {
-            // Obtener el blob del response
+            // Get the blob from the response
             const blob = await response.blob();
             
-            // Extraer nombre del archivo del header Content-Disposition
+            // Extract filename from Content-Disposition header
             const contentDisposition = response.headers.get('Content-Disposition');
             let filename = 'ODST_Technical_Documentation.md';
             
@@ -125,7 +122,7 @@ async function handleDownloadDocumentation() {
                 }
             }
             
-            // Crear URL temporal y descargar
+            // Create temporary URL and download
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -133,13 +130,13 @@ async function handleDownloadDocumentation() {
             document.body.appendChild(a);
             a.click();
             
-            // Limpiar
+            // Cleanup
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
             
             console.log('✅ Documentation downloaded successfully:', filename);
             
-            // Mostrar mensaje de éxito
+            // Show success message
             btn.innerHTML = '<span style="margin-right: 8px;">✅</span> Downloaded Successfully!';
             setTimeout(() => {
                 btn.innerHTML = originalHTML;
@@ -147,7 +144,7 @@ async function handleDownloadDocumentation() {
             }, 3000);
             
         } else {
-            // Manejar error
+            // Handle error
             let errorMessage = 'Failed to generate documentation';
             try {
                 const errorData = await response.json();
@@ -194,7 +191,7 @@ document.getElementById('odst-form').addEventListener('submit', async function(e
     step3.className = "step waiting"; step3.innerHTML = "[Waiting] Agent workflow...";
 
     // Generate the filter object that the backend expects
-    const filtrosSeleccionados = {
+    const selectedFilters = {
         "overview": false,
         "architecture": false,
         "business-logic": false,
@@ -203,15 +200,14 @@ document.getElementById('odst-form').addEventListener('submit', async function(e
         "technical-debt": false
     };
 
-    const checkboxes = document.querySelectorAll('input[name="filtros"]');
+    const checkboxes = document.querySelectorAll('input[name="filters"]');
     checkboxes.forEach((cb) => {
-        if (filtrosSeleccionados.hasOwnProperty(cb.value)) {
-            filtrosSeleccionados[cb.value] = cb.checked;
+        if (selectedFilters.hasOwnProperty(cb.value)) {
+            selectedFilters[cb.value] = cb.checked;
         }
     });
 
     // Collect input data
-    const token = document.getElementById('github-token').value;
     let repoUrl = document.getElementById('repo-url').value;
     let repository = repoUrl;
 
@@ -223,28 +219,26 @@ document.getElementById('odst-form').addEventListener('submit', async function(e
         }
     }
 
-    // Prepare final Payload for Andre and the agents
-    const payloadParaElBackend = {
-        github_token: token,
+    // Prepare final payload for the backend
+    const payload = {
         repository: repository,
-        branch: document.getElementById('branch').value,
-        filters: filtrosSeleccionados, 
+        filters: selectedFilters, 
         extensions: null
     };
 
-    console.log("JSON Payload to send:", payloadParaElBackend);
+    console.log("JSON Payload to send:", payload);
 
     try {
         console.log("🚀 Sending request to backend...");
-        console.log("Payload:", payloadParaElBackend);
+        console.log("Payload:", payload);
         
-        // Call to Andre's FastAPI server
-        const response = await fetch('/extract', {
+        // Call to FastAPI backend server
+        const response = await fetch(`${API_BASE}/extract`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(payloadParaElBackend)
+            body: JSON.stringify(payload)
         });
 
         console.log("📡 Response status:", response.status);
@@ -271,12 +265,12 @@ document.getElementById('odst-form').addEventListener('submit', async function(e
             step3.innerHTML = "[Done] Documentation generated successfully.";
             btn.innerHTML = "Analysis Completed";
             btn.disabled = false; // Reactivate in case they want to analyze another
-            
+
             // Render the actual results using the pages array from the backend
             if (data.frontend_docs && data.frontend_docs.pages) {
-                // Filtra solo los módulos que fueron seleccionados
-                const filteredPages = data.frontend_docs.pages.filter(page => filtrosSeleccionados[page.slug]);
-                renderizarResultadosDinamicos(filteredPages);
+                // Filter only the modules that were selected
+                const filteredPages = data.frontend_docs.pages.filter(page => selectedFilters[page.slug]);
+                renderDynamicResults(filteredPages);
             }
 
         } else {
@@ -317,7 +311,7 @@ document.getElementById('odst-form').addEventListener('submit', async function(e
         
         // Truncate very long error messages for UI
         if (errorDisplay.length > 200) {
-            errorDisplay = errorDisplay.substring(0, 200) + "... (ver consola para detalles completos)";
+            errorDisplay = errorDisplay.substring(0, 200) + "... (see console for full details)";
         }
         
         step1.innerHTML = `[Error] ${errorDisplay}`;
@@ -325,12 +319,12 @@ document.getElementById('odst-form').addEventListener('submit', async function(e
         // Show additional error info in step 2
         step2.className = "step waiting";
         step2.style.color = "#ff8844";
-        step2.innerHTML = "[Info] Revisa la consola del navegador (F12) para más detalles";
+        step2.innerHTML = "[Info] Check the browser console (F12) for more details";
         
         // Show troubleshooting tips in step 3
         step3.className = "step waiting";
         step3.style.color = "#ffaa44";
-        step3.innerHTML = "[Tip] Verifica: token válido, repositorio existe, permisos correctos";
+        step3.innerHTML = "[Tip] Verify: repository exists, correct permissions, server is running";
         
         btn.innerHTML = "Retry";
         btn.disabled = false;
@@ -338,41 +332,10 @@ document.getElementById('odst-form').addEventListener('submit', async function(e
         // Log helpful debugging info
         console.log("\n🔍 DEBUGGING INFORMATION:");
         console.log("Repository:", repository);
-        console.log("Token length:", token.length);
-        console.log("Token starts with:", token.substring(0, 4) + "...");
-        console.log("Filters:", filtrosSeleccionados);
+        console.log("Filters:", selectedFilters);
         console.log("\n💡 TROUBLESHOOTING TIPS:");
-        console.log("1. Verify your GitHub token is valid and has repo access");
-        console.log("2. Check that the repository exists and is accessible");
-        console.log("3. Ensure the backend server is running");
-        console.log("4. Check the backend console for detailed error logs");
+        console.log("1. Check that the repository exists and is accessible");
+        console.log("2. Ensure the backend server is running");
+        console.log("3. Check the backend console for detailed error logs");
     }
 });
-
-// render results (markdown)
-function renderDynamicResults(pagesArray) {
-    const container = document.getElementById('results-container');
-    
-    // Avoid errors if the function is called in a view where the container doesn't exist
-    if (!container) return;
-
-    container.innerHTML = '';
-
-    pagesArray.forEach(page => {
-        const tabDiv = document.createElement('div');
-        tabDiv.className = 'markdown-tab accordion-item';
-        
-        // Assign title and inject raw Markdown
-        // (You'll need Marked.js in your HTML to convert text to real HTML)
-        tabDiv.innerHTML = `
-            <button class="accordion-header">${page.title}</button>
-            <div class="accordion-content">
-                <div class="markdown-body">
-                    <pre>${page.markdown}</pre>
-                </div>
-            </div>
-        `;
-        
-        container.appendChild(tabDiv);
-    });
-}

@@ -6,7 +6,7 @@
       "is_fragmented": false
     },
     "repository": "Ok-Andre/Pagina-web",
-    "generation_timestamp": "2026-05-17T08:49:36.984983Z",
+    "generation_timestamp": "2026-05-17T11:05:04.526285Z",
     "files_in_chunk": 7,
     "total_files_in_repository": 7,
     "chunk_size_characters": 3083,
@@ -39,117 +39,6 @@
             ]
           }
         }
-      }
-    },
-    "database.py": {
-      "language": "python",
-      "external_imports": [
-        "mysql.connector",
-        "config"
-      ],
-      "structure": {
-        "classes": {
-          "database": {
-            "methods": [
-              {
-                "name": "__init__",
-                "arguments": [
-                  "self"
-                ]
-              },
-              {
-                "name": "connect",
-                "arguments": [
-                  "self"
-                ]
-              },
-              {
-                "name": "disconnect",
-                "arguments": [
-                  "self"
-                ]
-              },
-              {
-                "name": "ejecutar_consulta",
-                "arguments": [
-                  "self",
-                  "consulta",
-                  "params"
-                ]
-              },
-              {
-                "name": "obtener_todo",
-                "arguments": [
-                  "self",
-                  "consulta",
-                  "params"
-                ]
-              },
-              {
-                "name": "obtener_uno",
-                "arguments": [
-                  "self",
-                  "consulta",
-                  "params"
-                ]
-              }
-            ]
-          }
-        }
-      }
-    },
-    "config.py": {
-      "language": "python",
-      "external_imports": [],
-      "structure": {}
-    },
-    "app.py": {
-      "language": "python",
-      "external_imports": [
-        "operaciones",
-        "flask_cors",
-        "flask"
-      ],
-      "structure": {
-        "global_functions": [
-          {
-            "name": "home",
-            "purpose": "Ruta principal (información de la API)"
-          },
-          {
-            "name": "listar_contactos",
-            "purpose": "Lista todos los contactos"
-          },
-          {
-            "name": "buscar_contactos",
-            "purpose": "Busca contactos por término"
-          },
-          {
-            "name": "obtener_contacto",
-            "arguments": [
-              "id_contacto"
-            ],
-            "purpose": "Obtiene un contacto específico"
-          },
-          {
-            "name": "crear_contacto",
-            "purpose": "Crea un nuevo contacto"
-          },
-          {
-            "name": "actualizar_contacto",
-            "arguments": [
-              "id_contacto"
-            ],
-            "purpose": "Actualiza un contacto existente"
-          },
-          {
-            "name": "eliminar_contacto",
-            "arguments": [
-              "id_contacto"
-            ],
-            "purpose": "Elimina un contacto"
-          }
-        ]
       }
     },
     "operaciones.py": {
@@ -230,6 +119,117 @@
           }
         }
       }
+    },
+    "app.py": {
+      "language": "python",
+      "external_imports": [
+        "flask",
+        "flask_cors",
+        "operaciones"
+      ],
+      "structure": {
+        "global_functions": [
+          {
+            "name": "home",
+            "purpose": "Ruta principal (información de la API)"
+          },
+          {
+            "name": "listar_contactos",
+            "purpose": "Lista todos los contactos"
+          },
+          {
+            "name": "buscar_contactos",
+            "purpose": "Busca contactos por término"
+          },
+          {
+            "name": "obtener_contacto",
+            "arguments": [
+              "id_contacto"
+            ],
+            "purpose": "Obtiene un contacto específico"
+          },
+          {
+            "name": "crear_contacto",
+            "purpose": "Crea un nuevo contacto"
+          },
+          {
+            "name": "actualizar_contacto",
+            "arguments": [
+              "id_contacto"
+            ],
+            "purpose": "Actualiza un contacto existente"
+          },
+          {
+            "name": "eliminar_contacto",
+            "arguments": [
+              "id_contacto"
+            ],
+            "purpose": "Elimina un contacto"
+          }
+        ]
+      }
+    },
+    "database.py": {
+      "language": "python",
+      "external_imports": [
+        "config",
+        "mysql.connector"
+      ],
+      "structure": {
+        "classes": {
+          "database": {
+            "methods": [
+              {
+                "name": "__init__",
+                "arguments": [
+                  "self"
+                ]
+              },
+              {
+                "name": "connect",
+                "arguments": [
+                  "self"
+                ]
+              },
+              {
+                "name": "disconnect",
+                "arguments": [
+                  "self"
+                ]
+              },
+              {
+                "name": "ejecutar_consulta",
+                "arguments": [
+                  "self",
+                  "consulta",
+                  "params"
+                ]
+              },
+              {
+                "name": "obtener_todo",
+                "arguments": [
+                  "self",
+                  "consulta",
+                  "params"
+                ]
+              },
+              {
+                "name": "obtener_uno",
+                "arguments": [
+                  "self",
+                  "consulta",
+                  "params"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    "config.py": {
+      "language": "python",
+      "external_imports": [],
+      "structure": {}
     },
     "requerimientos.txt": {
       "language": "config/text",

@@ -37,12 +37,12 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    pointer-events: none; /* No bloquea clics */
+    pointer-events: none; /* Does not block clicks */
     z-index: -1;
     /* Gradiente radial centrado en las coordenadas del mouse */
     background: radial-gradient(
         circle 600px at var(--mouse-x, 50vw) var(--mouse-y, 50vh), 
-        rgba(255, 255, 255, 0.06), /* Luz blanca/grisácea muy sutil */
+        rgba(255, 255, 255, 0.06), /* Very subtle white/gray light */
         transparent 80%
     );
     transition: background 0.1s ease;
@@ -73,7 +73,7 @@ h1 {
     font-weight: bold;
 }
 
-/* ── Formulario Base ── */
+/* ── Base Form ── */
 .top-section, .options-section, .accordion-content {
     background-color: rgba(22, 27, 34, 0.65) !important;
     backdrop-filter: blur(12px) saturate(150%) !important;
@@ -136,7 +136,7 @@ h1 {
 .branch-selector select {
     width: 100%;
     padding: 12px 35px 12px 12px;
-    background-color: var(--ibm-blue); /* Verde cambiado a IBM Blue */
+    background-color: var(--ibm-blue); /* IBM Blue */
     border: 1px solid var(--ibm-blue-hover);
     color: white;
     border-radius: 6px;
@@ -183,7 +183,7 @@ h1 {
     margin: 0;
 }
 
-/* ── Botón Seleccionar Todo ── */
+/* ── Select All Button ── */
 .secondary-btn {
     background-color: var(--inner-box-bg);
     color: #8b949e;
@@ -225,7 +225,7 @@ h1 {
     font-weight: bold;
 }
 
-/* ── Options Section (Distribución Horizontal) ── */
+/* ── Options Section (Horizontal Layout) ── */
 .block {
     margin-bottom: 25px;
 }
@@ -280,7 +280,7 @@ h1 {
     color: #fff;
 }
 
-/* Estado Checked: Verde cambiado a IBM Blue */
+/* Checked State: IBM Blue */
 .toggle-btn input[type="checkbox"]:checked + .btn-content {
     background-color: rgba(15, 98, 254, 0.15);
     border-color: var(--ibm-blue);
@@ -330,7 +330,7 @@ h1 {
 }
 
 #analyze-btn {
-    background-color: var(--ibm-blue); /* Asegurado IBM Blue */
+    background-color: var(--ibm-blue); /* IBM Blue */
     color: white;
     border: none;
     padding: 14px 40px;
@@ -382,8 +382,8 @@ h1 {
 }
 
 .step.waiting { color: #8b949e; }
-.step.active { color: #f1e05a; } /* Amarillo IBM */
-.step.done { color: #4caf50; } /* Verde éxito mantenido para semántica */
+.step.active { color: #f1e05a; } /* IBM Yellow */
+.step.done { color: #4caf50; } /* Success green kept for semantics */
 
 /* ── Results Container & Accordions ── */
 #results-container {
@@ -421,7 +421,7 @@ h1 {
 
 .accordion-header.collapsed::before { transform: rotate(-90deg); }
 
-/* Contenido del acordeón con efecto Cristal */
+/* Accordion content with Glass effect */
 .accordion-content {
     background-color: var(--glass-bg);
     backdrop-filter: var(--glass-blur);
@@ -434,7 +434,7 @@ h1 {
 
 .accordion-content.hidden { display: none; }
 
-/* ── Layouts dentro de resultados ── */
+/* ── Layouts inside results ── */
 .layout-2-col { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
 .layout-50-50 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 
@@ -442,9 +442,9 @@ h1 {
     .layout-2-col, .layout-50-50 { grid-template-columns: 1fr; }
 }
 
-/* ── Cajas Grises (Contenido Oopaco sobre Cristal) ── */
+/* ── Grey Boxes (Opaque Content over Glass) ── */
 .grey-box {
-    background-color: var(--inner-box-bg); /* Ligeramente más oscuro para contraste */
+    background-color: var(--inner-box-bg); /* Slightly darker for contrast */
     border: 1px solid var(--border-color);
     border-radius: 8px; 
     padding: 16px;
@@ -477,7 +477,7 @@ h1 {
 
 /* ── Side panel ── */
 .side-panel {
-    background-color: rgba(240, 246, 252, 0.05); /* Muy sutil sobre cristal */
+    background-color: rgba(240, 246, 252, 0.05); /* Very subtle over glass */
     border-radius: 8px; 
     padding: 18px;
     border: 1px solid var(--border-color);
@@ -486,7 +486,7 @@ h1 {
 
 .side-panel p { margin: 4px 0 14px; }
 
-/* ── Language bar (Verde cambiado a IBM Blue) ── */
+/* ── Language bar (IBM Blue) ── */
 .lang-bar {
     display: flex; height: 10px;
     border-radius: 5px; overflow: hidden;
@@ -494,10 +494,10 @@ h1 {
     background-color: #484f58;
 }
 
-/* Usando IBM Blue para la barra principal */
-.lang-main { background-color: var(--ibm-blue); width: 70%; } /* Ejemplo */
-.lang-sec  { background-color: #f1e05a; width: 20%; } /* Ejemplo JS */
-.lang-other{ background-color: #e34c26; width: 10%; } /* Ejemplo HTML */
+/* Using IBM Blue for the main bar */
+.lang-main { background-color: var(--ibm-blue); width: 70%; } /* Example */
+.lang-sec  { background-color: #f1e05a; width: 20%; } /* Example JS */
+.lang-other{ background-color: #e34c26; width: 10%; } /* Example HTML */
 
 .lang-legend{ display: flex; gap: 12px; font-size: 0.75rem; flex-wrap: wrap; margin-top: 5px;}
 .lang-legend span { display: inline-flex; align-items: center; gap: 5px; }
@@ -511,7 +511,7 @@ h1 {
     font-weight: 600;
 }
 
-/* ── Table inside grey-box (Verde cambiado a IBM Blue) ── */
+/* ── Table inside grey-box (IBM Blue) ── */
 .data-table { width: 100%; border-collapse: collapse; margin: 10px 0;}
 
 .data-table th {
@@ -526,16 +526,16 @@ h1 {
 .data-table tr:nth-child(even) td { background-color: rgba(240, 246, 252, 0.02); }
 .data-table td family:monospace { color: #79c0ff; }
 
-/* ── Impact badges (Verde cambiado a IBM Blue) ── */
+/* ── Impact badges (IBM Blue) ── */
 .badge-alta  { background:rgba(15, 98, 254, 0.2);color:#79c0ff;border:1px solid var(--ibm-blue); padding:3px 12px;border-radius:20px;font-size:0.75rem;font-weight:600; }
 .badge-media { background:#3d2e00;color:#f0ad4e;border:1px solid #7a5c00; padding:3px 12px;border-radius:20px;font-size:0.75rem;font-weight:600; }
 .badge-baja  { background:#1a1f2e;color:#8b949e;border:1px solid #30363d; padding:3px 12px;border-radius:20px;font-size:0.75rem;font-weight:600; }
 
-/* ── Checklist (Icono cambiado a IBM Blue) ── */
+/* ── Checklist (IBM Blue icon) ── */
 .checklist { list-style: none; padding: 0; margin: 10px 0;}
 .checklist li { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; font-size: 0.95rem; color: var(--text-color);}
 .checklist li::before {
-    content: '✓'; color: var(--ibm-blue); /* Cambiado de azul claro a IBM Blue */
+    content: '✓'; color: var(--ibm-blue); /* IBM Blue */
     font-size: 1.1rem; flex-shrink: 0; margin-top: -2px; font-weight: bold;
 }
 
@@ -549,12 +549,12 @@ h1 {
     left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: -1; /* Se mantiene al fondo */
-    pointer-events: none; /* Permite hacer clic en los elementos de la UI */
+    z-index: -1; /* Stays in the background */
+    pointer-events: none; /* Allows clicking UI elements */
     background-color: #0d1117;
 }
 
-/* Asegura que los contenedores cristal tengan suficiente contraste sobre el fondo animado */
+/* Ensures glass containers have enough contrast over the animated background */
 .top-section, .options-section, .accordion-content {
     background-color: rgba(13, 17, 23, 0.75) !important;
     backdrop-filter: blur(16px) saturate(180%) !important;
@@ -616,7 +616,7 @@ h1 {
     line-height: 1.6;
 }
 
-/* Animación para el estado de carga */
+/* Loading state animation */
 @keyframes pulse {
     0%, 100% {
         opacity: 1;
