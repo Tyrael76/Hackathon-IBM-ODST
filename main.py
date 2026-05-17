@@ -162,16 +162,24 @@ class ExtractionRequest(BaseModel):
 @app.post("/api/extract")
 async def extract_repository(request: ExtractionRequest):
     """Extract repository using OAuth session"""
+    print(f"🔍 [EXTRACT] Received request: {request.repository}")
+    print(f"🔍 [EXTRACT] Session ID: {request.session_id}")
+    
     # Get session
     session = user_sessions.get(request.session_id)
     if not session:
+        print(f"❌ [EXTRACT] Session not found: {request.session_id}")
         raise HTTPException(status_code=401, detail="Invalid or expired session")
     
     github_token = session.get("github_token")
+    print(f"✅ [EXTRACT] Session found for user: {session.get('username')}")
+    print(f"🔑 [EXTRACT] Token length: {len(github_token) if github_token else 0}")
     
+    task_id = None
     try:
         # Generate task ID
         task_id = secrets.token_urlsafe(16)
+        print(f"📝 [EXTRACT] Generated task ID: {task_id}")
         
         # Store initial task status
         task_results[task_id] = {
@@ -182,20 +190,29 @@ async def extract_repository(request: ExtractionRequest):
         
         # Start extraction in background (simplified for now)
         output_json = os.path.join(os.path.dirname(os.path.abspath(__file__)), "agents", "compression_path", "para_uriel.json")
+        print(f"📁 [EXTRACT] Output file: {output_json}")
         
         # Step 1: Extract and compress repository
-        orchestrate_pipeline(
+        print(f"⚡ [EXTRACT] Starting orchestrate_pipeline...")
+        print(f"   - Repository: {request.repository}")
+        print(f"   - Token: {'***' + github_token[-4:] if github_token else 'None'}")
+        
+        result = orchestrate_pipeline(
             repository=request.repository,
             github_token=github_token,
             output_file=output_json,
             max_workers=2
         )
         
+        print(f"✅ [EXTRACT] orchestrate_pipeline completed: {result}")
+        
         task_results[task_id]["status"] = "analyzing"
         task_results[task_id]["progress"] = 50
         
         # Step 2: Analyze with AI and generate documentation
+        print(f"🤖 [EXTRACT] Starting AI analysis...")
         frontend_docs = generar_analisis(project_name=request.repository)
+        print(f"✅ [EXTRACT] AI analysis completed")
         
         # Store results
         task_results[task_id] = {
@@ -212,6 +229,10 @@ async def extract_repository(request: ExtractionRequest):
         }
         
     except Exception as e:
+        print(f"❌ [EXTRACT] Error occurred: {type(e).__name__}: {str(e)}")
+        import traceback
+        print(f"❌ [EXTRACT] Traceback:\n{traceback.format_exc()}")
+        
         if task_id:
             task_results[task_id] = {
                 "status": "failed",
