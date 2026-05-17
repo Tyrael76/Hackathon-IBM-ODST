@@ -1,44 +1,39 @@
-# Dependencias para el proyecto Hackathon IBM ODST
-
 # IBM Watsonx AI SDK
-ibm-watsonx-ai>=0.2.0
+ibm-watsonx-ai==1.1.2
 
-# Utilidades
-python-dotenv>=1.0.0
-
-# Web Framework (si usas Flask/FastAPI)
-flask>=3.0.0
-flask-cors>=4.0.0
-
-# Procesamiento de datos
-pandas>=2.0.0
-numpy>=1.24.0
-
-# Logging y monitoreo
-python-json-logger>=2.0.0
-
-# Testing
-pytest>=7.4.0
-pytest-cov>=4.1.0
-
-# Validación de datos
-pydantic>=2.0.0
-
-# Manejo de archivos
-PyPDF2>=3.0.0
-python-docx>=1.0.0
-
-# Utilidades adicionales
-requests>=2.31.0
+# Utilidades básicas
+python-dotenv==1.0.1
+requests==2.31.0
 PyGithub==2.1.1
 
-fastapi==0.104.1
+# Web Frameworks (Flask + FastAPI + Servidores de producción)
+flask==3.0.3
+flask-cors==4.0.1
+fastapi==0.111.0
 uvicorn[standard]==0.24.0
-pydantic==2.5.0
-langchain>=0.0.335,<0.0.336
-langchain-core>=0.1.0
-crewai>=0.1.0
+gunicorn==22.0.0
+marked==1.0.0
+
+# Procesamiento y Validación de datos (Versiones estables sincronizadas)
+pandas==2.2.2
+numpy==1.26.4
+pydantic==2.7.1
+pydantic-core==2.18.2
+
+# Orquestación de Agentes de IA (Versiones compatibles entre sí)
+crewai==0.32.0
+langchain==0.1.20
+langchain-core==0.1.52
+
+# Logging y Manejo de archivos
+python-json-logger==2.0.7
+PyPDF2==3.0.1
+python-docx==1.1.2
+
+# Testing
+pytest==8.2.1
+pytest-cov==5.0.0
 
 # MkDocs export/viewer
-mkdocs>=1.5.0
-mkdocs-material>=9.5.0
+mkdocs==1.6.0
+mkdocs-material==9.5.25
