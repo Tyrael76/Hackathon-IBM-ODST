@@ -82,11 +82,29 @@ def extract_dependencies(content):
     pattern = r"^(?:from|import)\s+([\w\.]+)"
     return list(set(re.findall(pattern, content, re.MULTILINE)))
 
-def get_repository_data(repo_full_name, token, allowed_exts):
+def get_repository_data(repo_full_name: str, token: str, allowed_exts: list[str] | None) -> list[dict]:
     """
-    Main extraction engine.
-    Receives dynamic parameters from FastAPI endpoint.
+    Main extraction engine with ephemeral token handling.
+    
+    SECURITY CRITICAL:
+    - Token parameter is ephemeral (exists only in function scope)
+    - Token is used immediately for GitHub API authentication
+    - Token is NEVER logged, stored, or cached
+    - Token is garbage collected after function returns
+    
+    Args:
+        repo_full_name: Full repository name (owner/repo)
+        token: Ephemeral GitHub access token (OAuth or PAT)
+        allowed_exts: List of file extensions to filter, or None for intelligent filtering
+    
+    Returns:
+        List of extracted file data dictionaries
+    
+    Raises:
+        Exception: On GitHub API errors or extraction failures
     """
+    # SECURITY: Token used here for authentication only
+    # PyGithub handles token internally, never exposes it
     g = Github(token)
     cache_name = f"cache_{repo_full_name.replace('/', '_')}.json"
     
