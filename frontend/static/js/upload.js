@@ -102,7 +102,7 @@ async function handleDownloadDocumentation() {
     console.log('📥 Downloading documentation for:', repository);
     
     try {
-        const response = await fetch('http://localhost:8000/download-docs', {
+        const response = await fetch('/download-docs', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -239,7 +239,7 @@ document.getElementById('odst-form').addEventListener('submit', async function(e
         console.log("Payload:", payloadParaElBackend);
         
         // Call to Andre's FastAPI server
-        const response = await fetch('http://localhost:8000/extract', {
+        const response = await fetch('/extract', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -344,7 +344,7 @@ document.getElementById('odst-form').addEventListener('submit', async function(e
         console.log("\n💡 TROUBLESHOOTING TIPS:");
         console.log("1. Verify your GitHub token is valid and has repo access");
         console.log("2. Check that the repository exists and is accessible");
-        console.log("3. Ensure the backend server is running on http://localhost:8000");
+        console.log("3. Ensure the backend server is running");
         console.log("4. Check the backend console for detailed error logs");
     }
 });

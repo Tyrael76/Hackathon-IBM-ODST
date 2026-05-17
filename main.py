@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import List
 import os
@@ -31,6 +32,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Mount static files (CSS, JS)
+FRONTEND_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend")
+app.mount("/static", StaticFiles(directory=os.path.join(FRONTEND_DIR, "static")), name="static")
+
 # Define what data we expect to receive from frontend
 class RepoRequest(BaseModel):
     github_token: str
@@ -45,7 +50,7 @@ class ExplainRequest(BaseModel):
 
 @app.get("/")
 def home():
-    return {"message": "Extraction Server Active"}
+    return FileResponse(os.path.join(FRONTEND_DIR, "templates", "index.html"))
 
 @app.post("/extract")
 async def extract_repository(request: RepoRequest):
