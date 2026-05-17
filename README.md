@@ -243,10 +243,10 @@ Hackathon-IBM-ODST/
 
 - **Python 3.10 or higher**
 - **IBM watsonx.ai access**: Valid credentials (API key, Project ID, URL).
-- **GitHub token**: For repository access (public or private as needed).
+- **GitHub OAuth App credentials**: Required for secure authenticated repository access through the web interface. Users log in with GitHub instead of manually pasting a Personal Access Token.
 - **Python dependencies**: Installed from `requirements.txt`.
 
-**Important**: IBM watsonx.ai credentials and GitHub token must be configured locally and should never be included in source code or uploaded to the repository.
+**Important**: IBM watsonx.ai credentials, GitHub OAuth secrets, temporary access tokens, and any local development tokens must be configured securely through environment variables and should never be included in source code or uploaded to the repository.
 
 ## 📚 Dependencies
 
@@ -295,19 +295,75 @@ The project uses the following main dependencies grouped by purpose:
 
 ## 🔐 Environment Configuration
 
-The project requires local environment variables for IBM watsonx.ai and GitHub. These credentials are sensitive and must be handled carefully:
+The project requires local environment variables for IBM watsonx.ai and GitHub OAuth. These credentials are sensitive and must be handled carefully:
 
 **Configuration requirements**:
 - Credentials must be placed in a local `.env` file at the project root or configured as system environment variables.
 - The `.env` file **MUST NOT be uploaded to the repository** (already included in `.gitignore`).
-- **Never write tokens or API keys directly in source code**.
+- **Never write tokens, client secrets, or API keys directly in source code**.
 - **Do not share credentials** in public repositories, messages, screenshots, or documentation.
+- **Do not ask users to paste GitHub Personal Access Tokens in the frontend**. Repository authorization must be handled through GitHub OAuth.
 
 **Required variables**:
-- IBM watsonx.ai credentials (API key, Project ID, service URL).
-- GitHub token for repository access.
+- IBM watsonx.ai credentials for model/API access.
+- GitHub OAuth App credentials (`GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `GITHUB_CALLBACK_URL`).
+- Application URLs (`BACKEND_URL`, `FRONTEND_URL`) for OAuth redirects and CORS configuration.
+- Session security value (`SESSION_SECRET_KEY`) for OAuth state/session protection.
+- watsonx Web Chat configuration if the assistant integration is enabled (`WATSONX_INTEGRATION_ID`, `WATSONX_REGION`).
 
-Consult the official IBM watsonx.ai and GitHub documentation to obtain your credentials.
+Example environment variables:
+
+~~~env
+GITHUB_CLIENT_ID=your_github_oauth_client_id
+GITHUB_CLIENT_SECRET=your_github_oauth_client_secret
+GITHUB_CALLBACK_URL=http://localhost:8000/auth/github/callback
+
+BACKEND_URL=http://localhost:8000
+FRONTEND_URL=http://localhost:5000
+SESSION_SECRET_KEY=your_secure_random_session_secret
+
+WATSONX_INTEGRATION_ID=your_watsonx_web_chat_integration_id
+WATSONX_REGION=us-south
+~~~
+**GitHub OAuth flow**:
+1. The user clicks **Log in with GitHub** in the frontend.
+2. GitHub authenticates the user and asks for authorization.
+3. GitHub redirects back to the application with a temporary authorization code.
+4. The FastAPI backend exchanges that code for a restricted access token using the GitHub Client Secret stored in `.env`.
+5. The backend uses the token to access the repository and run the documentation pipeline.
+
+
+Consult the official IBM watsonx.ai and GitHub OAuth documentation to obtain your credentials.
+
+## 🧠 Runtime State, Background Tasks and Cache Strategy
+
+For the MVP, the backend uses `BackgroundTasks` and an in-memory `DemoCache` to keep the user experience responsive during repository extraction and documentation generation.
+
+This means the API can start the extraction process in the background while the frontend polls the backend for progress and completion status.
+
+~~~text
+User starts repository analysis
+        ↓
+Backend starts background extraction task
+        ↓
+Temporary state is stored in DemoCache
+        ↓
+Frontend polls extraction status
+        ↓
+Generated documentation becomes available
+~~~
+
+The current cache is designed for demonstration speed and simplicity. It stores temporary extraction state in RAM and protects concurrent access with thread locks.
+
+Because this cache lives in process memory, production deployment must run the backend with a single worker:
+
+~~~bash
+uvicorn main:app --host 0.0.0.0 --port $PORT --workers 1
+~~~
+
+Using multiple workers with the current in-memory cache may cause inconsistent extraction state because each worker would have its own separate memory.
+
+For a production-ready version, the technical roadmap includes replacing `DemoCache` with Redis or another distributed cache. This would allow the backend to scale across multiple workers while preserving extraction state consistently.
 
 ## ⚙️ Installation
 
@@ -344,19 +400,25 @@ The server will be available at `http://localhost:8000`.
 - Swagger UI: `http://localhost:8000/docs`
 - ReDoc: `http://localhost:8000/redoc`
 
-**Main endpoint**: `POST /extract`
+**Main backend flow**:
 
-Send a request with the repository to analyze:
+The REST API supports the OAuth-based repository analysis flow:
+
+- `POST /auth/github/initiate`: starts the GitHub OAuth flow.
+- `GET /auth/github/callback`: receives the temporary authorization code from GitHub.
+- `GET /api/status/{repo}`: allows the frontend to poll extraction progress.
+- `GET /api/chat-config`: provides public watsonx Web Chat configuration when enabled.
+
+After the user completes the GitHub OAuth flow, the backend starts the repository extraction and documentation pipeline as a background task. The frontend can then poll the backend until the generated documentation is ready.
 
 ```json
 {
-  "github_token": "your_token_here",
   "repository": "user/repository",
   "branch": "main"
 }
 ```
 
-The system will execute the complete pipeline and return the generated documentation JSON.
+The backend uses the OAuth access token obtained through the authorization callback to access the repository securely. The system will execute the complete pipeline and return the generated documentation JSON.
 
 ### 🧵 Option 2: Direct pipeline execution
 
@@ -405,14 +467,17 @@ This export allows:
 
 ### 🔒 Security
 - **Do not upload the `.env` file to the repository**. It's already included in `.gitignore`.
-- **Do not upload tokens or API keys** in any project file.
+- **Do not upload tokens, OAuth secrets, or API keys** in any project file.
 - **Do not write credentials directly in code**. Always use environment variables.
+- **Do not request GitHub Personal Access Tokens directly in the frontend**. Use GitHub OAuth for user authorization.
 - Review that no credentials are exposed before making commits.
 
 ### 💳 Resource Consumption
 - The complete workflow **consumes IBM watsonx.ai credits** on each execution.
 - Analysis of large repositories may take several minutes.
-- Concurrent processing is optimized for 2 workers by default (configurable in `main.py`).
+- Internal repository processing may use concurrent execution for parsing and compression.
+- In production deployment, the FastAPI server should run with `--workers 1` while using the current in-memory `DemoCache`.
+- For multi-worker production scaling, the roadmap includes replacing `DemoCache` with Redis or another distributed cache.
 
 ### 🧾 Generated Files
 - Generated JSONs (`para_uriel.json`, `paraGio.json`, `frontend_docs.json`) **may change each time the pipeline runs**.
