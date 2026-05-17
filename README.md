@@ -175,6 +175,36 @@ Web frontend
 
 6. **Frontend**: `frontend/app.py` consumes `conexiones/frontend_docs.json` and renders the documentation.
 
+
+## 🤖 Use of IBM Bob IDE in the Development Process
+
+IBM Bob IDE was used as a central component during the development of this project, not only as a coding assistant, but as an active support tool for architecture planning, agent refactoring, compression logic design, testing, documentation structure, and module integration.
+
+The project required connecting several stages into a single end-to-end workflow: repository ingestion, deterministic code compression, AI-based architectural analysis, technical documentation generation, and frontend visualization. IBM Bob IDE helped the team reason about how these stages should interact and how each module should pass structured information to the next one.
+
+A key architectural decision supported during development was the separation between two major blocks:
+
+- **Deterministic block:** local Python logic used to ingest, filter, parse, and compress repository files without spending AI tokens.
+- **Cognitive block:** AI-based reasoning and documentation generation, where IBM Bob and watsonx-based models are used for higher-value tasks.
+
+This separation helped protect the available hackathon budget by avoiding unnecessary AI calls over raw repository content. Instead of sending an entire repository directly to a model, the system first reduces the code into a compact structural representation using AST parsing and regex-based extraction. This allows IBM Bob to focus on understanding architecture, data flow, business logic, and component interaction.
+
+IBM Bob IDE supported the development process in several key areas:
+
+- Refactoring isolated scripts into a connected modular pipeline.
+- Helping define clear JSON contracts between pipeline stages.
+- Supporting the isolation of AST-based compression logic and regex fallback extraction.
+- Assisting in the design of the architectural analysis stage.
+- Supporting the Writer stage that transforms analysis into structured Markdown documentation.
+- Helping define validation logic and test cases for generated documentation.
+- Supporting the integration between backend output and frontend rendering.
+
+IBM Bob was especially relevant during refactoring and validation. It helped reason about where each responsibility should live, how the agents should communicate, and how to keep the frontend independent from the internal AI pipeline.
+
+The final output is designed so the frontend does not need to understand how the AI agents work internally. It only consumes the generated documentation structure and renders the Markdown content for the user.
+
+Overall, IBM Bob IDE helped transform the project from separate scripts into a connected, cost-aware, and modular workflow capable of turning a GitHub repository into professional technical documentation.
+
 ## 🗂️ Folder Structure
 
 ```
