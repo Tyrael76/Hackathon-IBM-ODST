@@ -494,22 +494,22 @@ def orchestrate_pipeline(
     print("="*70 + "\n")
 
     # --- PHASE 4: AUTOMATIC AI ANALYSIS (Uriel) ---
-    print("🤖 [AI ANALYSIS] Calling Uriel's analyzer...")
+    print("🤖 [AI ANALYSIS] Legacy analyzer bypassed for Zero Waste CrewAI flow.")
     
     # Extract project name from repository
     project_name = repository.split('/')[-1] if '/' in repository else repository
     
-    try:
-        # Import from conexiones package
-        from conexiones.conexion_uriel_antonio import generar_analisis
-        
-        # Generate AI analysis
-        analysis_result = generar_analisis(project_name)
-        print(f"✅ [AI ANALYSIS] Analysis completed and saved to paraGio.json")
-        
-    except Exception as e:
-        print(f"⚠️ [AI ANALYSIS] Could not complete analysis: {str(e)}")
-        print(f"   You can run it manually later with: generar_analisis('{project_name}')")
+    # try:
+    #     # Import from conexiones package
+    #     from conexiones.conexion_uriel_antonio import generar_analisis
+    #     
+    #     # Generate AI analysis
+    #     analysis_result = generar_analisis(project_name)
+    #     print(f"✅ [AI ANALYSIS] Analysis completed and saved to paraGio.json")
+    #     
+    # except Exception as e:
+    #     print(f"⚠️ [AI ANALYSIS] Could not complete analysis: {str(e)}")
+    #     print(f"   You can run it manually later with: generar_analisis('{project_name}')")
 
     # Return primary output file or list of files
     if len(output_files) == 1:

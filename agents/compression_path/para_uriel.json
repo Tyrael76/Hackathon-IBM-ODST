@@ -5,37 +5,12 @@
       "total_chunks": 1,
       "is_fragmented": false
     },
-    "repository": "Tyrael76/Hackathon-IBM-ODST",
-    "generation_timestamp": "2026-05-16T07:43:05.089286Z",
-    "files_in_chunk": 5,
-    "total_files_in_repository": 5,
-    "chunk_size_characters": 415,
+    "repository": "Ok-Andre/Pagina-web",
+    "generation_timestamp": "2026-05-17T08:24:14.864777Z",
+    "files_in_chunk": 0,
+    "total_files_in_repository": 0,
+    "chunk_size_characters": 2,
     "instructions_for_ai": "Complete repository in single file."
   },
-  "files": {
-    "README.md": {
-      "language": "config/text",
-      "preview": "# Hackathon-IBM-ODST... [TRUNCATED]"
-    },
-    "agents/api/endpoints.py": {
-      "language": "python",
-      "external_imports": [],
-      "structure": {}
-    },
-    "frontend/routes/main.py": {
-      "language": "python",
-      "external_imports": [],
-      "structure": {}
-    },
-    "frontend/app.py": {
-      "language": "python",
-      "external_imports": [],
-      "structure": {}
-    },
-    "frontend/config.py": {
-      "language": "python",
-      "external_imports": [],
-      "structure": {}
-    }
-  }
+  "files": {}
 }

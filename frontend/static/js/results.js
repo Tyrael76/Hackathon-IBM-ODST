@@ -5,7 +5,7 @@ function renderizarResultadosDinamicos(pagesArray) {
     if (!container) return;
 
     // Reiniciar vista
-    ['overview', 'architecture', 'business-logic', 'onboarding-path'].forEach(slug => {
+    ['overview', 'architecture', 'business-logic', 'onboarding-path', 'security-audit', 'technical-debt'].forEach(slug => {
         const el = document.getElementById(`module-${slug}`);
         if (el) el.style.display = 'none';
     });
@@ -27,22 +27,45 @@ function renderizarResultadosDinamicos(pagesArray) {
             case 'architecture':    llenarArchitecture(tempDiv); break;
             case 'business-logic':  llenarBusinessLogic(tempDiv); break;
             case 'onboarding-path': llenarOnboardingPath(tempDiv); break;
+            case 'security-audit':  llenarSecurityAudit(tempDiv); break;
+            case 'technical-debt':  llenarTechnicalDebt(tempDiv); break;
         }
     });
 
     activarAcordeones();
+
+    // Transformar y renderizar diagramas Mermaid.js
+    setTimeout(async () => {
+        if (window.mermaid) {
+            mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+            
+            document.querySelectorAll('code.language-mermaid').forEach(el => {
+                const pre = el.parentElement;
+                const div = document.createElement('div');
+                div.className = 'mermaid';
+                div.textContent = el.textContent;
+                pre.parentNode.replaceChild(div, pre);
+            });
+            
+            try {
+                await mermaid.run({ querySelector: '.mermaid' });
+            } catch (e) {
+                console.error('Error renderizando Mermaid:', e);
+            }
+        }
+    }, 100);
 }
 
-// Busca un <h2> que contenga alguna de las keywords y extrae todo el HTML 
-// hermano siguiente hasta topar con otro <h2> o <h1>.
+// Busca un <h*> que contenga alguna de las keywords y extrae todo el HTML 
+// hermano siguiente hasta topar con otro header del mismo nivel o superior.
 function extraerSeccionHTML(tempDiv, keywords) {
-    const h2s = Array.from(tempDiv.querySelectorAll('h2'));
-    for (let h2 of h2s) {
-        const title = h2.textContent.toLowerCase();
+    const headers = Array.from(tempDiv.querySelectorAll('h1, h2, h3'));
+    for (let h of headers) {
+        const title = h.textContent.toLowerCase();
         if (keywords.some(kw => title.includes(kw))) {
             let html = '';
-            let curr = h2.nextElementSibling;
-            while (curr && curr.tagName !== 'H2' && curr.tagName !== 'H1') {
+            let curr = h.nextElementSibling;
+            while (curr && !['H1', 'H2', 'H3'].includes(curr.tagName)) {
                 html += curr.outerHTML;
                 curr = curr.nextElementSibling;
             }
@@ -72,32 +95,53 @@ function inyectar(id, html, fallback = false) {
 // Llenado por módulo (IA)
 
 function llenarOverview(tempDiv) {
-    const summary = extraerSeccionHTML(tempDiv, ['summary', 'resumen', 'description']);
+    let summary = extraerSeccionHTML(tempDiv, ['summary', 'resumen', 'description', 'general', 'overview']);
+    let techs = extraerSeccionHTML(tempDiv, ['technologies', 'tecnologías', 'stack', 'tech']);
+    if (!summary && !techs) summary = tempDiv.innerHTML;
     inyectar('res-overview-desc', summary, true);
-
-    const techs = extraerSeccionHTML(tempDiv, ['technologies', 'tecnologías', 'stack']);
     inyectar('res-overview-tech', techs);
 }
 
 function llenarArchitecture(tempDiv) {
-    const desc = extraerSeccionHTML(tempDiv, ['general', 'description', 'descripción']);
-    inyectar('res-arch-desc', desc, true);
+    let desc = extraerSeccionHTML(tempDiv, ['general', 'description', 'descripción', 'architecture', 'arquitectura']);
+    let components = extraerSeccionHTML(tempDiv, ['components', 'componentes', 'patterns', 'patrones']);
+    let diagram = extraerSeccionHTML(tempDiv, ['diagram', 'diagrama', 'flow']);
     
-    const components = extraerSeccionHTML(tempDiv, ['components', 'componentes', 'patterns']);
+    if (!desc && !components && !diagram) desc = tempDiv.innerHTML;
+    
+    inyectar('res-arch-desc', desc, true);
     inyectar('res-arch-components', components);
+    inyectar('res-arch-diagram', diagram);
 }
 
 function llenarBusinessLogic(tempDiv) {
-    const flow = extraerSeccionHTML(tempDiv, ['flow', 'flujo', 'core']);
+    let flow = extraerSeccionHTML(tempDiv, ['flow', 'flujo', 'core', 'logic', 'lógica']);
+    let decisions = extraerSeccionHTML(tempDiv, ['decisions', 'decisiones', 'rules', 'reglas']);
+    if (!flow && !decisions) flow = tempDiv.innerHTML;
     inyectar('res-biz-flow', flow, true);
-    
-    const decisions = extraerSeccionHTML(tempDiv, ['decisions', 'decisiones', 'rules']);
     inyectar('res-biz-decisions', decisions);
 }
 
 function llenarOnboardingPath(tempDiv) {
-    const order = extraerSeccionHTML(tempDiv, ['reading order', 'orden de lectura', 'order']);
+    let order = extraerSeccionHTML(tempDiv, ['reading order', 'orden de lectura', 'order', 'path', 'guía']);
+    if (!order) order = tempDiv.innerHTML;
     inyectar('res-path-order', order, true);
+}
+
+function llenarSecurityAudit(tempDiv) {
+    let vuln = extraerSeccionHTML(tempDiv, ['vulnerabilities', 'vulnerabilidades', 'owasp', 'secrets', 'secretos', 'security']);
+    let rec = extraerSeccionHTML(tempDiv, ['recommendations', 'recomendaciones', 'mitigation', 'mitigación']);
+    if (!vuln && !rec) vuln = tempDiv.innerHTML;
+    inyectar('res-sec-vuln', vuln, true);
+    inyectar('res-sec-rec', rec);
+}
+
+function llenarTechnicalDebt(tempDiv) {
+    let issues = extraerSeccionHTML(tempDiv, ['debt', 'deuda', 'issues', 'problemas', 'anti-patterns', 'antipatrones', 'practices', 'prácticas']);
+    let refactor = extraerSeccionHTML(tempDiv, ['refactor', 'refactorización', 'suggestions', 'sugerencias']);
+    if (!issues && !refactor) issues = tempDiv.innerHTML;
+    inyectar('res-debt-issues', issues, true);
+    inyectar('res-debt-refactor', refactor);
 }
 
 // Interfaz y Helpers

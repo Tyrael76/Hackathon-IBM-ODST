@@ -63,6 +63,27 @@
     </div>
 
     <div class="block">
+        <h3>Auditing Block</h3>
+        <div class="btn-row">
+            <label class="toggle-btn">
+                <input type="checkbox" name="filtros" value="security-audit">
+                <div class="btn-content">
+                    <span class="text">Security Audit</span>
+                    <span class="check-box"></span>
+                </div>
+            </label>
+
+            <label class="toggle-btn">
+                <input type="checkbox" name="filtros" value="technical-debt">
+                <div class="btn-content">
+                    <span class="text">Technical Debt</span>
+                    <span class="check-box"></span>
+                </div>
+            </label>
+        </div>
+    </div>
+
+    <div class="block">
         <h3>Generation Block</h3>
         <div class="btn-row">
             <label class="toggle-btn">
@@ -88,6 +109,27 @@
                     <span class="check-box"></span>
                 </div>
             </label>
+        </div>
+    </div>
+
+    <div class="block">
+        <h3>Documentation Block</h3>
+        <div class="btn-row">
+            <label class="toggle-btn">
+                <input type="checkbox" name="filtros" value="full-documentation" id="full-doc-checkbox">
+                <div class="btn-content">
+                    <span class="text">Full Documentation</span>
+                    <span class="check-box"></span>
+                </div>
+            </label>
+        </div>
+        <div id="download-section" style="display: none; margin-top: 1rem; padding: 1rem; background: rgba(30, 36, 48, 0.5); border-radius: 8px; border: 1px solid #30363d;">
+            <p style="color: #8b949e; font-size: 0.9rem; margin-bottom: 0.8rem;">
+                📄 Generate and download complete technical documentation including all sections, diagrams, and mitigation guide.
+            </p>
+            <button type="button" id="download-docs-btn" class="secondary-btn" style="width: 100%;">
+                <span style="margin-right: 8px;">📥</span> Download Full Documentation
+            </button>
         </div>
     </div>
 </div>
@@ -124,7 +166,10 @@
                     <div class="content-text" id="res-arch-desc" style="margin-bottom: 20px; line-height: 1.6; color: #c9d1d9;"></div>
                     
                     <p class="section-label">MAIN COMPONENTS:</p>
-                    <div class="grey-box" id="res-arch-components"></div>
+                    <div class="grey-box" id="res-arch-components" style="margin-bottom: 20px;"></div>
+
+                    <p class="section-label">DIAGRAM:</p>
+                    <div class="content-text" id="res-arch-diagram"></div>
                 </div>
             </div>
 
@@ -150,10 +195,33 @@
                 </div>
             </div>
 
+            <div class="accordion-item" id="module-security-audit" style="display: none;">
+                <button class="accordion-header">Security Audit</button>
+                <div class="accordion-content">
+                    <p class="section-label">VULNERABILITIES & EXPOSED SECRETS:</p>
+                    <div class="content-text" id="res-sec-vuln" style="margin-bottom: 20px; line-height: 1.6; color: #c9d1d9;"></div>
+                    
+                    <p class="section-label">RECOMMENDATIONS:</p>
+                    <div class="grey-box" id="res-sec-rec"></div>
+                </div>
+            </div>
+
+            <div class="accordion-item" id="module-technical-debt" style="display: none;">
+                <button class="accordion-header">Technical Debt</button>
+                <div class="accordion-content">
+                    <p class="section-label">ANTI-PATTERNS & ISSUES:</p>
+                    <div class="content-text" id="res-debt-issues" style="margin-bottom: 20px; line-height: 1.6; color: #c9d1d9;"></div>
+                    
+                    <p class="section-label">REFACTORING SUGGESTIONS:</p>
+                    <div class="grey-box" id="res-debt-refactor"></div>
+                </div>
+            </div>
+
         </div>
     </div>
     <script src="{{ url_for('static', filename='js/background.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
     <script src="{{ url_for('static', filename='js/upload.js') }}"></script>
     <script src="{{ url_for('static', filename='js/results.js') }}"></script>
     <script>

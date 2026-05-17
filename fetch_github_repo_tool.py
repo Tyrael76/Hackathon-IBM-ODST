@@ -86,25 +86,70 @@ class GitHubRepoTool:
             >>> print(f"Files extracted: {result['file_count']}")
         """
         try:
+            print(f"\n{'='*70}")
+            print(f"🚀 [FETCH_TOOL] Starting extraction for: {repository}")
+            print(f"{'='*70}")
+            
             # If no extensions specified, use intelligent filtering (empty list)
             if extensions is None:
                 extensions = []
+                print(f"🔧 [FETCH_TOOL] Using intelligent MIME-type filtering")
+            else:
+                print(f"🔧 [FETCH_TOOL] Using extension filter: {extensions}")
+            
+            # Validate token format
+            if not github_token or len(github_token) < 10:
+                error_msg = "Invalid GitHub token format. Token must be at least 10 characters."
+                print(f"❌ [FETCH_TOOL] {error_msg}")
+                return {
+                    "status": "error",
+                    "message": error_msg,
+                    "repo": repository,
+                    "file_count": 0,
+                    "files": [],
+                    "error_type": "INVALID_TOKEN"
+                }
+            
+            # Validate repository format
+            if '/' not in repository:
+                error_msg = f"Invalid repository format. Expected 'owner/repo', got '{repository}'"
+                print(f"❌ [FETCH_TOOL] {error_msg}")
+                return {
+                    "status": "error",
+                    "message": error_msg,
+                    "repo": repository,
+                    "file_count": 0,
+                    "files": [],
+                    "error_type": "INVALID_REPO_FORMAT"
+                }
             
             # Call extraction function
+            print(f"📡 [FETCH_TOOL] Calling gitAPI.get_repository_data...")
             files = gitAPI.get_repository_data(
                 repo_full_name=repository,
                 token=github_token,
                 allowed_exts=extensions
             )
             
+            print(f"✅ [FETCH_TOOL] gitAPI returned {len(files) if files else 0} files")
+            
             if not files:
+                error_msg = "No se encontraron archivos válidos en el repositorio. Posibles causas: repositorio vacío, todos los archivos son binarios, o el filtro de extensiones es muy restrictivo."
+                print(f"⚠️ [FETCH_TOOL] {error_msg}")
                 return {
                     "status": "error",
-                    "message": "No se encontraron archivos válidos en el repositorio",
+                    "message": error_msg,
                     "repo": repository,
                     "file_count": 0,
-                    "files": []
+                    "files": [],
+                    "error_type": "NO_FILES_FOUND"
                 }
+            
+            print(f"\n{'='*70}")
+            print(f"✅ [FETCH_TOOL] Extraction successful!")
+            print(f"   Repository: {repository}")
+            print(f"   Files extracted: {len(files)}")
+            print(f"{'='*70}\n")
             
             return {
                 "status": "success",
@@ -115,12 +160,26 @@ class GitHubRepoTool:
             }
             
         except Exception as e:
+            import traceback
+            error_trace = traceback.format_exc()
+            
+            print(f"\n{'='*70}")
+            print(f"❌ [FETCH_TOOL] EXCEPTION CAUGHT")
+            print(f"{'='*70}")
+            print(f"Exception type: {type(e).__name__}")
+            print(f"Exception message: {str(e)}")
+            print(f"\nFull traceback:")
+            print(error_trace)
+            print(f"{'='*70}\n")
+            
             return {
                 "status": "error",
                 "message": f"Error al extraer repositorio: {str(e)}",
                 "repo": repository,
                 "file_count": 0,
-                "files": []
+                "files": [],
+                "error_type": type(e).__name__,
+                "error_details": error_trace
             }
 
 
