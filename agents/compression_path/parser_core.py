@@ -22,7 +22,7 @@ import os
 import sys
 from pathlib import Path
 from typing import Dict, Any, List, Tuple, Optional
-from concurrent.futures import ProcessPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from threading import Lock
 import multiprocessing
 from datetime import datetime
@@ -370,9 +370,9 @@ def orchestrate_pipeline(
     
     print(f"   🔧 Using {max_workers} worker processes for parallel processing")
     
-    # Process files concurrently using ProcessPoolExecutor
+    # Process files concurrently using ThreadPoolExecutor
     processed_files = 0
-    with ProcessPoolExecutor(max_workers=max_workers) as executor:
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
         # Submit all files for processing
         future_to_file = {
             executor.submit(_process_file_worker, file): file

@@ -20,7 +20,7 @@ load_dotenv()
 # Configuración
 API_URL = "http://localhost:8000/download-docs"
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
-TEST_REPO = "owner/repo"  # Cambiar por un repositorio real para pruebas
+TEST_REPO = "Tyrael76/Hackathon-IBM-ODST"  # Cambiar por un repositorio real para pruebas
 
 def test_download_docs():
     """
@@ -182,7 +182,7 @@ if __name__ == "__main__":
     
     # Ejecutar test completo (comentado por defecto)
     # Descomentar la siguiente línea para ejecutar el test real:
-    # test_download_docs()
+    test_download_docs()
     
     print("\n💡 To run the full test:")
     print("   1. Ensure the FastAPI server is running (python main.py)")
