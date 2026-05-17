@@ -2,7 +2,6 @@
 
 # IBM Watsonx AI SDK
 ibm-watsonx-ai>=0.2.0
-langchain-ibm==1.0.10
 
 # Web Framework
 fastapi==0.104.1
@@ -12,7 +11,7 @@ gunicorn==22.0.0
 # Validación de datos
 pydantic==2.5.0
 
-# AI Agents
+# AI Agents (crewai 0.1.x depends on langchain)
 crewai==0.1.6
 langchain==0.0.335
 langchain-core==0.1.23
