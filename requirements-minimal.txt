@@ -6,3 +6,4 @@ pydantic-settings==2.1.0
 PyGithub==2.1.1
 requests==2.31.0
 python-dotenv==1.0.0
+ibm-watsonx-ai==1.1.16
